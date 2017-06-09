@@ -1,0 +1,103 @@
+﻿<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+body{
+	font-family: 'Segoe UI Symbol';
+}
+</style>
+</head>
+<body>
+
+或拖拽ini文件到下面窗口&nbsp;<input type="file" id="file" onchange="fileOnChange(this.files)"/>
+<div style="position:relative;">
+INI:<textarea id="ini" rows="20" cols="50" ondrop="onDrop(event)" onkeyup="textareaOnChange()"></textarea>
+<button id="btnTo" onclick="toJSON()" style="position:relative;top:-150px;left:20px;width:80px;height:80px;border-radius: 100px;border:1px solid black;" unselectable="on">转换为JSON</button>
+JSON:<textarea id="json" rows="20" cols="50" onkeyup="textareaOnChange()"></textarea>
+</div>
+<div id="checkResult" style="color:red"></div>
+
+<script>
+function onDrop(event) {  
+	event.stopPropagation();
+	event.preventDefault();
+	loadOsuFile((event||window.event).dataTransfer.files);
+	textareaHasChange = true;
+}
+
+function fileOnChange(files) {
+	loadOsuFile(files);
+	textareaHasChange = true;
+}
+
+function textareaOnChange() {
+	//document.getElementById('btnTo').removeAttribute('disabled');
+	textareaHasChange = true;
+}
+
+function loadOsuFile(files) {
+  if(files.length) {
+  	if(files[0].name.substring(files[0].name.lastIndexOf('.') + 1).toLowerCase() != 'ini') {
+  		alert('请选择.ini文件');
+  		return;
+  	}
+     var reader = new FileReader();
+     reader.onload = function() {
+         document.getElementById('ini').value = this.result;
+         toJSON();
+     };
+     reader.readAsText(files[0]);
+  }
+}
+
+var textareaHasChange = false;
+
+function toJSON() {
+	//document.getElementById('btnTo').setAttribute('disabled', true);
+	if(!textareaHasChange) return;
+
+	var ini = document.getElementById('ini').value;
+	if(!ini.trim()) return;
+
+	var jsonTextarea = document.getElementById('json');
+	jsonTextarea.value =  '';
+
+	var iniObject = new Object();
+
+	var selectionName;
+	var lines = ini.split('\n');
+	lines.forEach(function(line){
+		line = line.trim();
+		if(!line) {
+			return;
+		}
+		if(/^\[\w+\]$/.test(line)) {
+			selectionName = firstToLowerCase(line.substring(1, line.length-1));
+			iniObject[selectionName] = new Object();
+		} else if(/^\/\//.test(line)) {
+			return;
+		} else {
+			var namevalue = getNameAndValue(line);
+			iniObject[selectionName][namevalue[0]] = namevalue[1];
+		}
+
+	});
+
+	jsonTextarea.value = 'var skinConfig = ' + JSON.stringify(iniObject);
+
+	function getNameAndValue(str) {
+		var index = str.indexOf(':');
+		var name = str.substring(0, index).trim();
+		name = /^[A-Z]{2}/.test(name) ? name : firstToLowerCase(name);
+		var value = str.substring(index + 1).trim();
+		return [name, value];
+	}
+
+	function firstToLowerCase(str) {
+		return str.charAt(0).toLowerCase() + str.substring(1);
+	}
+
+}
+</script>
+</body>
+</html>

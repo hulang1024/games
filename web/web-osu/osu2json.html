@@ -1,0 +1,185 @@
+﻿<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+body{
+	font-family: 'Segoe UI Symbol';
+}
+</style>
+</head>
+<body>
+
+或拖拽OSU文件到下面窗口&nbsp;<input type="file" id="file" onchange="fileOnChange(this.files)"/>
+<div style="position:relative;">
+OSU:<textarea id="osu" rows="20" cols="50" ondrop="onDrop(event)" onkeyup="textareaOnChange()"></textarea>
+<button id="btnToJSON" onclick="toJSON()" style="position:relative;top:-150px;left:20px;width:80px;height:80px;border-radius: 100px;border:1px solid black;" unselectable="on">转换为JSON</button>
+JSON:<textarea id="json" rows="20" cols="50" onkeyup="textareaOnChange()"></textarea>
+</div>
+<div id="checkResult" style="color:red"></div>
+
+<script>
+function onDrop(event) {  
+	event.stopPropagation();
+	event.preventDefault();
+	loadOsuFile((event||window.event).dataTransfer.files);
+	textareaHasChange = true;
+}
+
+function fileOnChange(files) {
+	loadOsuFile(files);
+	textareaHasChange = true;
+}
+
+function textareaOnChange() {
+	//document.getElementById('btnToJSON').removeAttribute('disabled');
+	textareaHasChange = true;
+}
+
+function loadOsuFile(files) {
+  if(files.length) {
+  	if(files[0].name.substring(files[0].name.lastIndexOf('.') + 1).toLowerCase() != 'osu') {
+  		alert('请选择.osu文件');
+  		return;
+  	}
+     var reader = new FileReader();
+     reader.onload = function() {
+         document.getElementById('osu').value = this.result;
+         toJSON();
+     };
+     reader.readAsText(files[0]);
+  }
+}
+
+var beatmapID = null, beatmapSetID = null;
+var textareaHasChange = false;
+
+function toJSON() {
+	//document.getElementById('btnToJSON').setAttribute('disabled', true);
+	if(!textareaHasChange) return;
+
+	var osu = document.getElementById('osu').value;
+	if(!osu.trim()) return;
+
+	var jsonTextarea = document.getElementById('json');
+
+	jsonTextarea.value =  '';
+
+	var osuObject = new Object();
+
+	var kindName,
+			dataType = 0,//1=名:值,2=逗号分隔
+			skip = false;
+	var lines = osu.split('\n');
+	lines.forEach(function(line){
+		line = line.trim();
+		if(!line) {
+			return;
+		}
+
+		if(! osuObject['fileFormatVersion']) {
+			var prefix = 'osu file format v';
+			if(new RegExp('^' + prefix + '\\d+$').test(line)) {
+				osuObject['fileFormatVersion'] = parseFloat(line.substring(prefix.length));
+			}
+		}
+		
+		switch(line) {
+			case '[General]':
+				newKindItem(1, line); break;
+			case '[Editor]':
+				newKindItem(1, line); break;
+			case '[Metadata]':
+				newKindItem(1, line); break;
+			case '[Difficulty]':
+				newKindItem(1, line); break;
+			case '[Events]':
+				newKindItem(2, line); break;
+			case '[TimingPoints]':
+				newKindItem(2, line); break;
+			case '[Colours]': 
+				newKindItem(1, line); break;
+			case '[HitObjects]':
+				newKindItem(2, line); break;
+			default:
+				if(/^\[\w+\]$/.test(line)) skip = true;
+				if(skip) return;
+				if(/^\/\//.test(line)) return;
+				switch(dataType) {
+					case 1:
+						var namevalue = getNameAndValue(line);
+						osuObject[kindName][namevalue[0]] = namevalue[1];
+						break;
+					case 2:
+						osuObject[kindName].push(line.split(','));
+				}
+		}
+
+	});
+	
+
+	var BeatmapIDInput = document.getElementById('BeatmapID');
+	if(!beatmapID && (BeatmapIDInput && BeatmapIDInput.value && !isNaN(+ BeatmapIDInput.value))) {
+		beatmapID = + BeatmapIDInput.value;
+	}
+	var BeatmapSetIDInput = document.getElementById('BeatmapSetID');
+	if(!beatmapSetID && (BeatmapSetIDInput && BeatmapSetIDInput.value && !isNaN(+ BeatmapSetIDInput.value))) {
+		beatmapSetID = + BeatmapSetIDInput.value;
+	}
+	if(osuObject.metadata) {
+		osuObject.metadata.beatmapID = osuObject.metadata.beatmapID || beatmapID;
+		osuObject.metadata.beatmapSetID = osuObject.metadata.beatmapSetID || beatmapSetID;
+	}
+
+	if(checkBeatmap(osuObject)) {
+		jsonTextarea.value = 'var BeatmapID' + osuObject.metadata.beatmapID + ' = ' + JSON.stringify(osuObject);
+		beatmapID = null;
+		beatmapSetID = null;
+		textareaHasChange = false;
+	}
+
+	
+	function newKindItem(dt, line) {
+		kindName = firstToLowerCase(line.substring(1, line.length-1));
+		if(dt == 1) osuObject[kindName] = new Object();
+		if(dt == 2) osuObject[kindName] = new Array();
+		dataType = dt;
+		skip = false;
+	}
+	
+	function checkBeatmap(beatmap) {
+		var checkResult = document.getElementById('checkResult');
+		var n = 0, msg = '';
+		if(!(beatmap.general && beatmap.metadata && beatmap.difficulty && beatmap.timingPoints && beatmap.hitObjects)) {
+			msg += '文件内容不完整!';
+			n++;
+		} else {
+			if(!beatmap.metadata.beatmapID) {
+				msg += '[Metadata]缺少BeatmapID。请填写一个数字:<input type="text" id="BeatmapID"/><br>';
+				n++;
+			}
+			if(!beatmap.metadata.beatmapSetID) {
+				msg += '[Metadata]缺少BeatmapSetID。请填写该歌曲文件夹名称前面的数字:<input type="text" id="BeatmapSetID"/><br>';
+				n++;
+			}
+		}
+
+		checkResult.innerHTML = msg;
+		return n == 0;
+	}
+
+	function getNameAndValue(str) {
+		var index = str.indexOf(':');
+		var name = str.substring(0, index).trim();
+		name = /^[A-Z]{2}/.test(name) ? name : firstToLowerCase(name);
+		var value = str.substring(index + 1).trim();
+		return [name, value];
+	}
+
+	function firstToLowerCase(str) {
+		return str.charAt(0).toLowerCase() + str.substring(1);
+	}
+
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="shortcut icon" href="app/favicon.ico">
+<title>osu!</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body oncontextmenu="return false" onselectstart="return false" oncopy="return false">
+
+<div id="menu" class="screen" style="display:block">
+	<div id="playerNowplaying"></div>
+	<div id="musicPlayerBtns" style="display:none">
+		<button id="prev" title="上一首">◁</button>
+		<button id="play" title="播放">&nbsp;▶</button>
+		<button id="pause" title="暂停">‖</button>
+		<button id="stop" title="停止">■</button>
+		<button id="next" title="下一首">&nbsp;▷</button>
+	</div>
+	<button id="playButton" style="display:none">游戏</button>
+	<button id="settingsButton" style="display:none">选项</button>
+	<button id="exitButton" style="display:none">退出</button>
+	<div id="osuLogo" style="display:none"></div>
+</div>
+
+<div id="solo" class="screen" style="display:none;">
+	<!--分组、排序功能-->
+	<div id="songSelectListOp">
+		<span>分组</span>
+		<select name="group">
+			<option>不分组</option>
+			<option value="artist">艺术家</option>
+			<option value="bpm">BPM</option>
+			<option value="creator">作图者</option>
+			<option value="difficulty">难度</option>
+			<option value="length">长度</option>
+			<option value="title">标题</option>
+		</select>
+		<span>排序</span>
+		<select name="sort">
+			<option value="artist">艺术家</option>
+			<option value="bpm">BPM</option>
+			<option value="creator">作图者</option>
+			<option value="difficulty">难度</option>
+			<option value="length">长度</option>
+			<option value="title">标题</option>
+			<option value="beatmapSetID">图谱集ID</option>
+			<option value="beatmapID">图谱ID</option>
+		</select>
+	</div>
+
+	<!--搜索功能-->
+	<div id="search">
+		<span>搜索</span><input type="text"/>
+		<span><span>
+	</div>
+
+	<!-- 歌曲描述 -->
+	<div id="songDesc">
+		<p name="songName"></p>
+		<p>
+			<span>作者 : <span><span name="creator"></span>
+		</p>
+		<p>
+			<span>长度 : <span><span name="length"></span>&nbsp;&nbsp;
+			<span>BPM : <span></span><span name="bpm"></span>&nbsp;&nbsp;
+			<span>物件数 : </span><span name="objects"></span>&nbsp;&nbsp;
+		</p>
+		<p>
+			<span>圈数 : </span><span name="circles"></span>&nbsp;&nbsp;
+			<span>滑条数 : </span><span name="sliders"></span>&nbsp;&nbsp;
+			<span>转盘数 : </span><span name="spinners"></span>&nbsp;&nbsp;
+		</p>
+		<p id="odInfo">
+			<span>CS:</span><span name="cs"></span>
+			<span>AR:</span><span name="ar"></span>
+			<span>OD:</span><span name="od"></span>
+			<span>HP:</span><span name="hp"></span>
+			<span>Stars:</span><span name="stars"></span>
+		</p>
+		<select id="rankingTypeSelect">
+			<option>本地排行</option>
+		</select>
+		<div id="netContent">
+			<a href="http://osu.ppy.sh" target="_blank" style="font-size: 10px;color:white" title="访问此谱面在网络上的歌曲列表/分数页面">@</a>
+		</div>
+	</div>
+
+	<div id="ranking" style="display:none">
+		<select></select>
+	</div>
+
+	<!--歌曲列表-->
+	<div id="songSelectColl" style="display:none">
+		<select></select>
+	</div>
+
+	<div id="selectedModNames"></div>
+	<div id="toolbox">
+		<div id="line"></div>
+		<div id="mods"></div>
+		<div id="random"></div>
+	</div>
+	<div name="back"></div>
+	<div id="btnStart"></div>
+</div>
+
+<div id="gameplay" class="screen" style="display:none">
+	<div id="scoring">00000000</div>
+	<div class="barprogress">
+	<div id="progress" style="width:0%;height:100%;background-color:#886600;opacity:0.3"></div>
+	</div>
+	<div id="accuracy">100.00%</div>
+	<div id="withMods"></div>
+	<div id="divCombo" style="position:absolute;bottom: 5px;left:5px;width:200px;font-size:50px;color:white"></div>
+  
+	<div id="keyOverlay">
+		<div name="k1">K1</div>
+		<div name="k2">K2</div>
+		<div name="m1">M1</div>
+		<div name="m2">M2</div>
+	</div>
+	<!--<button id="btnChangePlaybackSpeed">Speed x1.0</button>-->
+	
+	<div id="gamefield"></div>
+	<div id="skip"></div>
+	<div id="gamefieldMenu" style="display:none">
+		<!--<button id="btnContinue" style="width:100%; height:60px;" disabled="disabled">Continue</button> -->
+		<button class="menuItem" id="btnBack" style="width:100%; height:60px;">返回</button>
+		<!--<button id="btnRetry">重来</button>-->
+	</div>
+</div>
+
+<div id="grades" class="screen" style="display:none;">
+	<div name="title">
+		<p style="font-size:22px" name="song"></p>
+		<p style="font-size:19px" name="creator"></p>
+		<p style="font-size:17px" name="date"></p>
+	</div>
+	<div name="rankingTitle"></div>
+	<div name="rankingPanel">
+		<table>
+			<tr><td></td><td></td></tr>
+			<tr><td></td><td></td></tr>
+			<tr><td></td><td></td></tr>
+		</table>
+		<div name="combo"></div>
+		<div name="accuracy"></div>
+	</div>
+	<div name="ranking"></div>
+	<div id="withMods"></div>
+	<button class="menuItem" name="replayButton">观看重放</button>
+	<div name="back"></div>
+</div>
+
+
+<div id="options">
+	<h1>设定</h1>
+	<p style="font-size:15px;text-align:center;color:#ca6579;">改变 osu! 的设置</p>
+
+	<h2>画面</h2> 
+	<p class="h3">渲染器</p>
+	<p title="如果卡帧,请降低设置为60fps"><span>帧数限制：</span>
+		<select id="fps">
+		<option value="60">60fps</option>
+		<option value="61">>60fps</option>
+		<option value="0">无限制</option>
+		</select></p>
+
+	<h2>游戏</h2>
+	<p class="h3">常规</p>
+	<p><label for="enableKeyoverlay">
+		<input id="enableKeyoverlay" type="checkbox" checked="checked">
+			<span>显示按键表示框</span></label></p>
+
+	<h2>音频</h2>
+	<p class="h3">音量</p>
+	<p><label for="masterVolume">整体：</label>
+		<input id="masterVolume" type="text" value="0" style="height:width:8px;"/></p>
+	<p><label for="musicVolume">音乐：</label>
+		<input id="musicVolume" type="text" value="0" style="width:8px;"/></p>
+	<p><label for="effectVolume">音效：</label>
+		<input id="effectVolume" type="text" value="0" style="width:8px;"/></p>
+
+	<h2>输入</h2>
+	<p class="h3">鼠标</p>
+	<p><label for="disableMouseKeyInGameplaying">
+		<input id="disableMouseKeyInGameplaying" type="checkbox">
+			<span>在游戏中禁用鼠标按键</span></label></p>
+	<p class="h3">键盘</p>
+	<p style="text-align:center;">
+		<button style="background-color:#0f83a4;" onclick="showKeySettings()">按键设置</button></p>
+
+	<h2>外观</h2>
+	<p class="h3">皮肤</h3></p>
+	<p><span>当前皮肤：</span>
+		<select id="skins">
+		</select></p>
+	<p title="光标会根据选择谱面难度的CS(物件大小)进行调整"><label for="enableAutoCursorSizing">
+		<input id="enableAutoCursorSizing" type="checkbox" checked="checked">
+			<span>自动缩放光标</span>
+	</label></p>
+	<button name="back">< 返回</button>
+</div>
+
+<div id="keySettings" class="screen" style="display:none;">
+	<h2>按键设置</h2>
+	<table border="1px">
+		<tr name="LeftClick">
+			<td class="keyName">Left Click</td><td class="keyValue">Z</td>
+		</tr>
+		<tr name="RightClick">
+			<td class="keyName">Right Click</td><td class="keyValue">X</td>
+		</tr>
+	</table>
+
+	<div id="bingdingMsg" style="display:none">
+		<h1 id="bindingKeyName" style="text-align:center;color:yellow;font-weight:bold;">&nbsp;</h1>
+		<br><br>
+		<h1 style="text-align:center;">按下希望绑定的按键...</h1>
+		<h1 style="text-align:center;">按Esc取消。</h1>
+		<br><br>
+		<h2 style="text-align:center;">提示：请注意避免按键冲突！</h2>
+	</div>
+
+	<button name="back" onclick="backOptionsFromKeySettings()">< 返回</button>
+</div>
+
+<div id="modSelection" class="screen" style="display:none;">
+	<h2 style="font-size: 28px;font-weight: normal;"> Mod 可以让你以不同的方式来进行游戏。有些 Mod 对你的游戏分数会有影响，还有一些仅供娱乐。</h2>
+	<br>
+	<h2 style="font-size: 30px;font-weight: normal;text-align:center">Score Multiplier: <span id="scoreMultiplier">1.00</span>X</h2>
+	<table>
+		<tr>
+			<td style="color:green">降低难度</td>
+			<td>
+				<label for="easy">
+				<div title="降低总体难度---更大的圈，HP下降更慢，缩圈速度变慢，更低的准确要求，有2次机会原地满状态复活。"
+					class="mod">
+					<input type="checkbox" id="easy" />
+				</div></label>
+			</td>
+			<td>
+				<label for="noFail">
+				<div title="不管怎么样，你都失败不了。"
+					class="mod">
+					<input type="checkbox" id="noFail" />
+				</div></label>
+			</td>
+			<td>
+				<label for="halfTime">
+				<div title="减<<<<<<速（0.75倍速）"
+					class="mod">
+					<input type="checkbox" id="halfTime" />
+				</div></label>
+			</td>
+		</tr>
+		<tr>
+			<td style="color:red">增加难度</td>
+			<td>
+				<label for="hardRock">
+				<div title="各方面的难度都增加一点..."
+					class="mod">
+					<input type="checkbox" id="hardRock" />
+				</div></label>
+			</td>
+			<td>
+				<label for="suddendeath">
+				<div title="不全连，便失败（按下切换到Perfect）"
+					class="mod">
+					<input type="checkbox" id="suddendeath" />
+				</div></label>
+			</td>
+			<td>
+				<label for="doubleTime">
+				<div title="加>>>>>>速（1.5倍速）"
+					class="mod">
+					<input type="checkbox" id="doubleTime" />
+				</div></label>
+			</td>
+			<td>
+				<label for="hidden">
+				<div title="没有缩圈，圈圈渐隐，分数略微提高。"
+					class="mod">
+					<input type="checkbox" id="hidden" />
+				</div></label>
+			</td>
+		</tr>
+		<tr>
+			<td>特殊</td>
+			<td>
+				<label for="relax">
+				<div title="你不用点击，只需移动。**不计入排名**"
+					class="mod">
+					<input type="checkbox" id="relax" />
+				</div></label>
+			</td>
+			<td>
+				<label for="relax2">
+				<div title="光标会自动移动，跟着节奏点就好。**不计入排名**"
+					class="mod">
+					<input type="checkbox" id="relax2" />
+				</div></label>
+			</td>
+			<td>
+				<label for="spunOut">
+				<div title="转盘会自动完成。"
+					class="mod">
+					<input type="checkbox" id="spunOut" />
+				</div></label>
+			</td>
+			<td>
+				<label for="autoplay">
+				<div title="来看看精彩绝伦的自动表演。"
+					class="mod">
+					<input type="checkbox" id="autoplay">
+				</div></label>
+			</td>
+		</tr>
+	</table>
+
+	<div id="modSelectionMenu">
+		<button class="menuItem" style="background-color: red;" onclick="resetAllMods()">重置所有 Mod</button>
+		<button class="menuItem" style="background-color: gray;" onclick="backSoloFromModSelection()">关闭</button>
+	</div>
+</div>
+
+<div id="loading"></div>
+<canvas style="display:none;"></canvas>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery.easing.1.3.js"></script>
+<script src="js/jquery.easing.compatibility.js"></script>
+<script src="js/jsext.js"></script>
+<script src="js/ConfigManager.js"></script>
+<script src="js/Cursor.js"></script>
+<script src="js/WindowGame.js"></script>
+<script src="js/AudioManager.js"></script>
+<script src="js/Options.js"></script>
+<script src="js/osu.Game/Menu/MainMenu.js"></script>
+<script src="js/PlaySongSelect.js"></script>
+<script src="js/VolumeControl.js"></script>
+<script src="js/osu!.js"></script>
+</body>
+</html> 

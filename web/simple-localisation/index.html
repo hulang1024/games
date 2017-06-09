@@ -1,0 +1,95 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>simple-localisation</title>
+    
+    <style>
+        body {
+            background: #000000;
+            color: white;
+            font-family: "Arial", sans-serif;
+            font-weight: normal;
+        }
+        #options {
+            width: 300px;
+            margin: 0 auto;
+        }
+        #main {
+            width: 100px;
+            margin-top: 20px;
+            margin: 10 auto;
+        }
+        .title {
+            margin-top: 12px;
+            margin-bottom: 12px;
+            text-align:center;
+            color: white;
+            font-family: "Arial", sans-serif;
+            font-weight: bold;
+            font-size: 30px;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="title">本地化的简单实现</div>
+    <div id="options">
+        <span id="spanSelectLang"></span>:
+        <select id="selectLang"></select>
+    </div>
+  
+    <div id="main">
+        <button id="ok"></button>
+        <button id="cancel"></button>
+        <button id="confirm"></button>
+        <button id="back"></button>
+        <button id="never"></button>
+        <button id="always"></button>
+    </div>
+    
+    <script src="locale.js"></script>
+    <script src="localisation.js"></script>
+    <script src="localisation/en.us.js"></script>
+    <script src="localisation/zh.chs.js"></script>
+    <script src="localisation/zh.cht.js"></script>
+    <script src="localisation/ja.js"></script>
+    <script>
+    var locale = localStorage["language"] ?
+        Locale.fromDisplayLanguage(localStorage["language"]) : Locale.getDefault();
+    var locBundle = getLocalisationResourceBundle(locale);
+    
+    loadOptions();
+    updateUI();
+    
+    function loadOptions() {
+        var select = document.getElementById("selectLang");
+        select.onchange = function() {
+            locBundle.setLocale(this.value);
+            
+            localStorage["language"] = this.value;
+            
+            updateUI();
+        }
+        var optLocales = [Locale.US, Locale.CHINA, new Locale("zh", "CN", "CHT"), Locale.JAPAN];
+        optLocales.forEach(function(locale) {
+            var opt = new Option();
+            opt.text = locale.getDisplayLanguage();
+            opt.value = locale.toString();
+            select.add(opt);
+        });
+        
+        select.value = locale;
+    }
+
+    function updateUI() {
+        document.getElementById("spanSelectLang").innerHTML = locBundle.getString("selectLang");
+        document.getElementById("ok").innerHTML = locBundle.getString("ok");
+        document.getElementById("cancel").innerHTML = locBundle.getString("cancel");
+        document.getElementById("confirm").innerHTML = locBundle.getString("confirm");
+        document.getElementById("back").innerHTML = locBundle.getString("back");
+        document.getElementById("never").innerHTML = locBundle.getString("never");
+        document.getElementById("always").innerHTML = locBundle.getString("always");
+    }
+    </script>
+  </body>
+</html>
+
