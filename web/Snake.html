@@ -1,0 +1,540 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Snake</title>
+</head>
+<body style=" margin: 0 auto; font-size: 14px;">
+<div style="width: 200px; font-size: 20px;">
+	分数:<span id="score"></span>
+</div>
+<canvas id="myCanvas" style="border:2px solid gray"></canvas>
+<div id="gameStates" style="position: relative; color: gray">
+	运动状态:<span id="pause"></span>
+	控制模式:<span id="controlMode"></span>
+	蛇的长度:<span id="snakeLength"></span>
+	蛇的速度:<span id="snakeSpeed"></span></br>
+	蛇的方向:<span id="snakeDir"></span>
+	<span id="info"></span></br>
+
+</div>
+<span style="font-size:22px">控制</span>
+<div id="help" style="position: relative; ">
+	Esc:重新开始, 空格:开始/暂停/继续, Ctrl:切换控制模式(影响手感)</br>
+	方向键/鼠标点击:改变蛇的移动方向, I:加速, O:减速
+</div>
+<div>
+	<input id="chkUndead" type="checkbox" onchange="undead=this.checked" /><label for="chkUndead">不死</label>
+	<input id="chkFree" type="checkbox" onchange="free=this.checked" /><label for="chkFree">无障碍</label>
+	<input id="chkAutoTurn" type="checkbox" onchange="autoTurn=this.checked" /><label for="chkAutoTurn">自动转弯</label>
+	<input id="chkAI" type="checkbox" onchange="ai=this.checked" /><label for="chkAI">智能</label>
+</div>
+
+<script type="text/javascript" src="libs/jquery/jquery.min.js"></script>
+<script>
+//---------
+//一些可用的按键常量
+var KEY_LEFT = 37;
+var KEY_UP = 38;
+var KEY_RIGHT = 39;
+var KEY_DOWN = 40;
+var KEY_ESC = 27;
+var KEY_ENTER = 13;
+var KEY_SPACE = 32;
+var KEY_CTRL = 17;
+var KEY_I = 73;
+var KEY_O = 79;
+
+//控制按键定义
+var P_L = KEY_LEFT;
+var P_U = KEY_UP;
+var P_R = KEY_RIGHT;
+var P_D = KEY_DOWN;
+var P_RESET = KEY_ESC;
+var P_PAUSE = KEY_SPACE;
+var P_CHANGE_CONTROL_MODE = KEY_CTRL;
+var P_INC_SPEED = KEY_I;
+var P_DEC_SPEED = KEY_O;
+
+var OBJ = {
+  EMPTY: 0,
+  SNAKE_HEAD: 1,
+  SNAKE_BODY: 2,
+  SNAKE_TAIL: 3,
+  FOOD: 4,
+  STONE: 5
+};
+//地图数据:一个地图例子
+var mapData = "\
+000000000000000000000000000000\
+000000000000000000000000000000\
+000000000000000000000000000000\
+500000005000000550000000000000\
+000000000000000050000000000000\
+000550000000055000000000000000\
+000500000000005000000000000000\
+000005500005500000000000000000\
+000005000000500000000000000000\
+000000000000000000000000000000\
+000000000000000000000000000000\
+000000050000500000000000000000\
+000000055005500000000000000000\
+000005000000005000000000000000\
+000005500000055000000000000000\
+000500000000000000000000000000\
+000550000000000500050000000000\
+000000000000000000000000000000\
+000000000000000000000000000000\
+000000000000000000000000000000";
+var mapDataRows = 20;
+var mapDataCols = 30;
+	
+var colors = ['white', 'blue', 'red', 'red', 'yellow', 'gray'];//地图中各对象的颜色
+var OBJ_SIZE = 20;
+
+var DIR_L = 0, DIR_U = 1, DIR_R = 2, DIR_D = 3;//蛇的方向值
+
+var map = [];
+var snake = {//蛇的相关数据
+  nodes: [],//蛇的位置节点
+  dir: DIR_R,//蛇的方向
+  msSpeed: 0//蛇的毫秒速度
+};
+var food = new Point(0, 0);
+var pause;//是否暂停,布尔
+var over;//蛇头碰到了一些东西,数字
+var controlQueueMode; //是否为控制队列模式
+var controlQueue = new Queue(); //控制队列
+var undead = false;//不死
+var free = false;//无障碍
+var autoTurn = false;//自动转弯
+var ai = false;//AI
+var score;
+var timer;
+
+function Point(x, y) {
+  this.x = x;
+  this.y = y;
+  this.copy = function() {
+    return new Point(this.x, this.y);
+  };
+  this.equals = function(other) {
+    if(other === this)
+      return true;
+    if(!(other instanceof Point))
+      return false;
+    return this.x == other.x && this.y == other.y;
+  };
+}
+
+function Queue() {
+  this.enQueue = function(elem) {
+    tail++;
+    arr[tail] = elem;
+  };
+  this.deQueue = function() {
+    head++;
+    return arr[head];
+  };
+  this.empty = function() {
+    return head >= tail;
+  };
+  this.clear = function() {
+    arr.length = 0;
+    head = 0;
+    tail = 0;
+  };
+  var arr = [];
+  var head = 0;
+  var tail = 0;
+}
+//-----------------
+
+onload = function(){
+  start();
+};
+
+function start() {
+  clearTimeout(timer);
+  initMap();
+  initSnake();
+  initGame();
+  drawMap();
+  drawSnake();
+  randFood();
+  drawObj(food, OBJ.FOOD);
+  showGameStates();
+  updateScore();
+  if(!pause) {
+    move();
+  }
+}
+
+function initGame() {
+  var canvas = document.getElementById('myCanvas');
+  canvas.width = map.cols * OBJ_SIZE;
+  canvas.height = map.rows * OBJ_SIZE;
+	
+  canvas.addEventListener('click', click, false);
+
+  $(document.body).css('width', map.cols * OBJ_SIZE);
+	
+  window.cxt = canvas.getContext('2d');
+  document.onkeydown = keydown;
+
+  pause = false;
+  over = 0;
+  controlQueueMode = true;
+  controlQueue.clear();
+  score = 0;
+}
+
+/*
+ * 初始化地图
+ */
+function initMap() {
+  for(var r = 0; r < mapDataRows; r++) {
+    map.push([]);
+    for(var c = 0; c < mapDataCols; c++) {
+      var objNo = mapData[r * mapDataCols + c] - 0;
+      map[r][c] = objNo;
+    }
+  }
+  map.rows = mapDataRows;
+  map.cols = mapDataCols;
+}
+
+/*
+ * 初始化一条蛇
+ * 参数
+ *   snake
+ */
+function initSnake() {
+  snake.nodes.length = 0;
+  snake.nodes.push(new Point(2, 0));
+  snake.nodes.push(new Point(1, 0));
+  snake.nodes.push(new Point(0, 0));
+  snake.dir = DIR_R;
+  snake.msSpeed = 100;
+}
+
+/*
+ * 按键按下的事件处理
+ * 参数
+ *   event: 事件信息
+ */
+function keydown(event) {
+  //获得按键信息
+  var key = window.event ? event.keyCode : event.which;
+  switch(key) {
+  case P_U:
+    //蛇不能后退
+    if(snake.dir != DIR_D) {
+      snake.dir = DIR_U;
+      //把这个方向指令加入控制队列
+      controlQueue.enQueue(snake.dir);
+    }
+    break;
+  case P_D:
+    if(snake.dir != DIR_U) {
+      snake.dir = DIR_D;
+      controlQueue.enQueue(snake.dir);
+    }
+    break;
+  case P_L:
+    if(snake.dir != DIR_R) {
+      snake.dir = DIR_L;
+      controlQueue.enQueue(snake.dir);
+    }
+    break;
+  case P_R:
+    if(snake.dir != DIR_L) {
+      snake.dir = DIR_R;
+      controlQueue.enQueue(snake.dir);
+    }
+    break;
+  case P_RESET:
+    start();
+    break;
+  case P_PAUSE:
+    pause = !pause;
+    if(!pause) {
+      controlQueue.clear();
+      move();
+    }
+    break;
+  case P_CHANGE_CONTROL_MODE:
+    controlQueueMode = !controlQueueMode;
+    controlQueue.clear();
+    break;
+  case P_INC_SPEED:
+    if(snake.msSpeed)
+      snake.msSpeed -= 1;
+    break;
+  case P_DEC_SPEED:
+    snake.msSpeed += 1;
+    break;
+  default: ;
+  }
+
+  showGameStates();
+}
+
+function click(event) {
+  var pt = getEventPos();//click point
+  pt.x = Math.ceil(pt.x / OBJ_SIZE);
+  pt.y = Math.ceil(pt.y / OBJ_SIZE);
+  if(Math.abs(pt.x - snake.nodes[0].x) > Math.abs(pt.y - snake.nodes[0].y)) {
+    if(pt.x - snake.nodes[0].x > 0)
+      snake.dir = DIR_R;
+    else
+      snake.dir = DIR_L;
+  } else {
+    if(pt.y - snake.nodes[0].y > 0)
+      snake.dir = DIR_D;
+    else
+      snake.dir = DIR_U;
+  }
+  controlQueue.enQueue(snake.dir);
+	
+  function getEventPos() {
+    var x, y; 
+    if (event.layerX || event.layerX == 0) {
+      x = event.layerX;
+      y = event.layerY;
+      event.target.style.position = 'relative';
+    } else if (event.offsetX || event.offsetX == 0) {
+      x = event.offsetX;
+      y = event.offsetY;
+    }
+    return new Point(x, y);
+  }
+}
+
+/*
+ * 蛇的移动循环
+ */
+function move() {
+  if(pause)
+    return;
+
+  //每帧蛇的当前方向从控制队列中取
+  if(controlQueueMode && !controlQueue.empty())
+    snake.dir = controlQueue.deQueue();
+	
+  if(ai) {//暂蠢
+    var h = snake.nodes[0];
+    if(food.x == h.x)
+      if(food.y > h.y) snake.dir = DIR_D;
+      else if(food.y < h.y) snake.dir = DIR_U;
+    else if(food.y == h.y)
+      if(food.x > h.x) snake.dir = DIR_R;
+      else if(food.x < h.x) snake.dir = DIR_L;
+    var t = [OBJ.STONE];
+    if(!free &&
+      ((snake.dir == DIR_L && h.x > 0 && t.indexOf(map[h.y][h.x - 1]) > -1) ||
+       (snake.dir == DIR_U && h.y > 0 && t.indexOf(map[h.y - 1][h.x]) > -1) ||
+       (snake.dir == DIR_R && h.x < map.cols - 1 && t.indexOf(map[h.y][h.x + 1]) > -1) ||
+       (snake.dir == DIR_D && h.y < map.rows - 1 && t.indexOf(map[h.y + 1][h.x]) > -1)))
+      snake.dir = rightTurn(snake.dir);
+  }
+
+  moveStep();
+  
+  if(over) {
+    if(!undead) {
+      alert('死了~');
+      start();
+      return;
+    }
+		
+    over = 0;
+    if(autoTurn)
+      snake.dir = rightTurn(snake.dir);
+  }
+  //实现延时循环
+  timer = setTimeout(move, snake.msSpeed);
+}
+
+function rightTurn(dir) {
+  var next = [];
+  next[DIR_U] = DIR_R;
+  next[DIR_D] = DIR_L;
+  next[DIR_L] = DIR_U;
+  next[DIR_R] = DIR_D;
+  return next[dir];
+}
+
+/*
+ * 蛇移动一步
+ * 参数:
+ *   snake.dir
+ *   snake
+ */
+function moveStep() {
+  showGameStates();
+  var newHead = snake.nodes[0].copy();
+  var oldTail = snake.nodes[snake.nodes.length - 1].copy();
+  //根据蛇的当前方向改变蛇头位置
+  switch(snake.dir) {
+  case DIR_U:
+    newHead.y--;
+    break;
+  case DIR_R:
+    newHead.x++;
+    break;
+  case DIR_L:
+    newHead.x--;
+    break;
+  case DIR_D:
+    newHead.y++;
+    break;
+  }
+
+  //以下 判断蛇头是否撞到了什么东西
+ 
+  var coord = '坐标(' + snake.nodes[0].x + ',' + snake.nodes[0].y + ')是';
+  info(coord + '空');
+  if((newHead.x > map.cols - 1 || newHead.x < 0) ||
+     (newHead.y > map.rows - 1 || newHead.y < 0)) {
+    info(coord + '墙壁');
+    over = 1;
+    return;
+  }
+
+  if(!free && isInSnake(newHead)) {
+    info(coord + '自己');
+    over = 2;
+    return;
+  }
+  
+  var thing = map[newHead.y][newHead.x];
+
+  if(!free && thing == OBJ.STONE) {
+    info(coord + '石头');
+    over = 3;
+    return;
+  }
+  
+  if(thing == OBJ.FOOD) {
+    info(coord + '食物');
+    if(free && snake.nodes.length == map.rows * map.cols) {
+      over = 0;
+      alert('Game Over');
+      restart();
+      return;
+    }
+    snake.nodes.push(new Point(0, 0));
+    map[newHead.y][newHead.x] = OBJ.EMPTY;
+    randFood();
+    drawObj(food, OBJ.FOOD);
+    updateScore();
+    showGameStates();
+  }
+  //身体跟着头移动
+  for(var i = snake.nodes.length - 1; i >= 1; i--)
+    snake.nodes[i] = snake.nodes[i - 1].copy();
+  snake.nodes[0] = newHead;
+  drawObj(oldTail, OBJ.EMPTY);
+  drawSnake();
+  drawMap();
+}
+
+/* 
+ * 判断一个点是否在蛇身上
+ */
+function isInSnake(point) {
+  for(var i = 0; i < snake.nodes.length; i++)
+    if(snake.nodes[i].equals(point))
+      return true;
+  return false;
+}
+
+/* 
+ * 在地图中随机位置生成一个食物
+ */
+function randFood() {
+  function randInt(n, m) {
+    return Math.floor(Math.random() * (m - n)) + n;
+  }
+  //聪明的食物
+  function smart(pt) {
+    if(pt.x == snake.nodes[0].x) {
+      if(snake.dir == DIR_U)
+        return pt.x - snake.nodes[0].x < 0;
+      if(snake.dir == DIR_D)
+        return pt.x - snake.nodes[0].x > 0;
+    }
+    if(pt.y == snake.nodes[0].y) {
+      if(snake.dir == DIR_L)
+        return pt.y - snake.nodes[0].y < 0;
+      if(snake.dir == DIR_R)
+        return pt.y - snake.nodes[0].y > 0;
+    }
+    return false;
+  }
+  do
+  {
+    food.x = randInt(0, map.cols);
+    food.y = randInt(0, map.rows);
+  } while(isInSnake(food) || smart(food) ||
+    map[food.y][food.x] != OBJ.EMPTY);
+  map[food.y][food.x] = OBJ.FOOD;
+}
+
+function drawMap() {
+  var pt = new Point(0, 0);
+  for(var r = 0; r < map.rows; r++) {
+    for(var c = 0; c < map.cols; c++) {
+      if(map[r][c] == OBJ.STONE) {
+        pt.x = c;
+        pt.y = r;
+        drawObj(pt, OBJ.STONE);
+      }
+    }
+  }
+}
+
+function drawSnake() {
+  drawObj(snake.nodes[0], OBJ.SNAKE_HEAD);
+  for(var i = 1; i < snake.nodes.length - 1; i++)
+    drawObj(snake.nodes[i], OBJ.SNAKE_BODY);
+  drawObj(snake.nodes[snake.nodes.length - 1], OBJ.SNAKE_TAIL);
+}
+
+/*
+ * 画一个地图对象
+ * 参数
+ *   point  坐标
+ *   type  对象类型
+ */
+function drawObj(point, type) {
+  cxt.fillStyle = colors[type];
+  cxt.fillRect(point.x * OBJ_SIZE, point.y * OBJ_SIZE, OBJ_SIZE, OBJ_SIZE);
+}
+
+//显示游戏状态
+function showGameStates() {
+  $('#pause').html(pause ? '静止' : '移动');
+  $('#controlMode').html(controlQueueMode ? '队列' : '普通');
+  var toText = {};
+  toText[DIR_L] = '←';
+  toText[DIR_U] = '↑';
+  toText[DIR_R] = '→';
+  toText[DIR_D] = '↓';
+  $('#snakeDir').html(toText[snake.dir]);
+  $('#snakeSpeed').html(snake.msSpeed + 'ms/' + OBJ_SIZE + 'px');
+  $('#snakeLength').html(snake.nodes.length);
+}
+
+function info(str) {
+  $('#info').html(str);
+}
+
+function updateScore() {
+  $('#score').html(score++);
+}
+
+</script>
+</html>
+</body>

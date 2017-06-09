@@ -1,0 +1,43 @@
+# depslib dependency file v1.0
+1497020079 source:f:\git\games\c\studentscoremanager\main.c
+	<stdio.h>
+	<stdlib.h>
+	"student_score_list.h"
+	"manager.h"
+	"pcc32.h"
+	"ui.h"
+
+1482675860 f:\git\games\c\studentscoremanager\student_score_list.h
+	<stdlib.h>
+	"list.h"
+
+1478607482 f:\git\games\c\studentscoremanager\list.h
+
+1482758084 f:\git\games\c\studentscoremanager\manager.h
+	<stdio.h>
+	<strings.h>
+	<ctype.h>
+	"student_score_list.h"
+
+1483251566 f:\git\games\c\studentscoremanager\pcc32.h
+	<stdio.h>
+	<stdlib.h>
+	<conio.h>
+	<windows.h>
+
+1482754854 f:\git\games\c\studentscoremanager\ui.h
+
+1482678938 source:f:\git\games\c\studentscoremanager\manager.c
+	"manager.h"
+
+1478607482 source:f:\git\games\c\studentscoremanager\pcc32.c
+	"pcc32.h"
+
+1482675876 source:f:\git\games\c\studentscoremanager\student_score_list.c
+	"student_score_list.h"
+
+1482754928 source:f:\git\games\c\studentscoremanager\ui.c
+	"stdio.h"
+	"pcc32.h"
+	"ui.h"
+

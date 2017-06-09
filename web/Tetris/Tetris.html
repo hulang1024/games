@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Tetris</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body>
+	<div id="options">
+		<p style="font-size:20px;font-weight:bold;text-align:center;">设定</p>
+		<p style="font-size:14px;text-align:center;color:#ca6579;">改变俄罗斯方块的设置</p>
+		<p style="font-size:24px;text-align:right;color:#58d9fd">输入</p>
+		<p style="font-size:18px;font-weight:bold;color:white">按键设置</p>
+		<p class="tip">按下希望绑定的按键，提示：请注意避免按键冲突</p>
+		<p>旋转：<input class="key" name="rotate" type="text" size="10"/></p>
+		<p>左移：<input class="key" name="left" type="text" size="10"/></p>
+		<p>右移：<input class="key" name="right" type="text" size="10"/></p>
+		<p>下移：<input class="key" name="down" type="text" size="10"/></p>
+		<p>落下：<input class="key" name="drop" type="text" size="10"/></p>
+		<p></p>
+		<p style="font-size:24px;text-align:right;color:#58d9fd">外观</p>
+		<p style="font-size:18px;font-weight:bold;color:white">皮肤</p>
+		<p>颜色：<input name="colors" type="text" size="60" title="填写颜色的十六进制代码或名称。依次为形状I、L、J、O、S、T、Z的方块，投影方块边框，背景方块，游戏区域边框以及窗口背景。" /></p>
+		<p style="text-align:center;"><button id="save" style="text-align:center;background-color: #dd5e79;">应用皮肤</button></p>
+		<br>
+		<p style="text-align:center;"><button id="reset" style="background-color:#0f83a4;">全部重置</button></p>
+		<button name="back">< 返回</button>
+	</div>
+	
+    <div id="gamefield">
+		<div id="space"></div>
+		<div style="position:absolute;top:0px;left:320px;font-size:20px;">时间: <span id="time"></span></div>
+		<div style="position:absolute;top:30px;left:320px;font-size:20px">
+			分数: <span id="score"></span>
+		</div>
+		<div style="position:absolute;top:60px;left:320px;font-size:20px">
+			行数: <span id="killedLines"></span>
+		</div>
+		<div style="position:absolute;top:90px;left:320px;font-size:20px">
+			<div style="font-size:20px">下个:</div>
+			<div id="nextBlock" style="position:absolute;left:0px;"></div>
+		</div>
+
+		<div style="position:absolute;top:0px;left:320px;top:300px;font-size:15px;">
+            <button id="play">玩游戏</button>
+            <button id="settings">选项</button>
+		</div>
+		
+		<div id="pause">
+			<button name="continue" style="background-color:#a1c71b;">继续</button>
+			<button name="restart" style="background-color:#f48f0d;">重来</button>
+		</div>
+    </div>
+	
+    <div id="debug" style="position:absolute;top:0px;left:330px;"></div>
+
+
+    <script src="../libs/jquery/jquery.min.js"></script>
+    <script src="../libs/Timekeeper.js"></script>
+    <script src="tetris.js"></script>
+</body>
+</html>

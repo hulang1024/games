@@ -1,0 +1,125 @@
+<!DOCTYPE html">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+    <title>猜扑克</title>
+    <style>
+        ul{
+            width:105px;
+            height:1000px;
+            list-style:none;
+            float:left;
+            position:relative;
+            padding:0;
+            margin-left:30px;
+            cursor:pointer;
+        }
+        .selected{
+            top:-2px;
+            left:-2px;
+            margin-right:-4px;
+            border:2px solid blue;
+        }
+        #answer{
+            width:200px;
+            height:200px;
+            margin:0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="timesWrap">剩余<span id="times" style="font-size:40px;color:red;">3</span>次</div>
+    <div id="cardG">
+        <ul id="ul_1"></ul>
+        <ul id="ul_2"></ul>
+        <ul id="ul_3"></ul>
+    </div>
+    <div id="answer"></div>
+    
+    <script src="../libs/jquery/jquery.min.js"></script>
+    <script>
+    $(function(){
+    var config = {
+      pokerCount: 51,
+      timesMax:3
+    };
+
+    var poker = [];
+    var cardGroup = [[],[],[]];
+    var times = 1;
+
+    function init(){
+        for(var n=0;n<config.pokerCount;n++)
+          poker.push({id:(n+1)});
+    }
+
+    function fen(){
+        for(var j=0;j<config.pokerCount;j++)
+          cardGroup[j%3][Math.floor(j/3)] = poker[j];
+    }
+
+    function he(c){
+      var order;
+      if (c==0) order=[1,0,2];
+      else if(c==1) order=[0,1,2];
+      else if(c==2) order=[0,2,1];
+
+      var j=0;
+      for(var r=0;r<3;r++) {
+        for(var c=0;c<config.pokerCount/3;c++)
+          poker[j++] = cardGroup[ order[r] ][c];
+      }
+    }
+
+    function show(){
+        for(var r=0;r<3;r++) {
+          var ul = $('#ul_'+(r+1));
+          ul.empty();
+          ul.get(0).index = r;
+          ul.hover(
+            function(){
+              $(this).addClass('selected');
+            },
+            function(){
+              $(this).removeClass('selected');
+            }
+          );
+          ul.click(function(){
+            $('#times').html(config.timesMax-times);
+            if(times==config.timesMax)
+              end(this.index);
+            he(this.index);
+            fen();
+            show();
+            times++;
+            stopPropagation();
+          });
+          for(var c=0;c<config.pokerCount/3;c++) {
+            var li = document.createElement('li');
+            li.style.position='relative';
+            li.style.top=-106*c+'px';
+            var img = document.createElement('img');
+            img.src = "images\\" + cardGroup[r][c].id + ".jpg";
+            li.appendChild(img);
+            ul.append(li);
+          }
+        }
+    }
+
+    function end(i) {
+        var ansCardId = cardGroup[i][Math.floor(config.pokerCount/3/2)].id;
+        var img = document.createElement('img');
+        img.src = "images\\" + ansCardId + ".jpg";
+        $('#cardG').empty();
+        $('#answer').append(img);
+    }
+
+    init();
+    fen();
+    show();
+
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<! DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>hlpp's web games</title>
+
+	<style>
+	body { margin:0; padding: 10px; font-size: 19px; }
+	ul { list-style:none; }
+	#gameList { width: 100px; margin: 0 auto; }
+	#gameUl { margin: 0 auto; padding: 0 0; }
+	#gameUl li { margin-bottom: 6px; }
+	</style>
+  </head>
+  
+  <body>
+	<a href="http://hlpp.github.io" target="_blank">Blog</a>
+
+	<div id="gameList">
+		<h4>Game List</h4>
+		<ul id="gameUl"></ul>
+    </div>
+  </body>
+  
+  <script src="index_config.js"></script>
+  <script>
+    function WebGame(url, name, cnname) {
+      this.url = url;
+      this.name = name;
+      this.cnname = cnname;
+    }
+      
+    function genGameList() {
+      var games = [];
+      window.GAME_HTML_FILE_NAMES.forEach(function(htmlFilename){
+        var rootUrl = 'https://hlpp.github.io/little-games/web';
+        var normalName = htmlFilename.lastIndexOf('/') == -1 ?
+          htmlFilename : htmlFilename.substring(htmlFilename.lastIndexOf('/') + 1); 
+        var game = new WebGame(rootUrl + '/' + htmlFilename + ".html", normalName);
+        games.push(game);
+      });
+      
+      var gameUl = document.getElementById('gameUl');
+      for(var i = 0; i < games.length; i++) {
+        var a = document.createElement('a');
+        a.href = games[i].url;
+        a.target = '_blank';
+        a.innerHTML = games[i].name;
+        var li = document.createElement('li');
+        li.appendChild(a);
+        
+        gameUl.appendChild(li);
+      }
+    }
+    
+    window.onload = function() {
+      genGameList();
+    };
+  </script>
+</html>

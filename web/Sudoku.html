@@ -1,0 +1,521 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8"/>
+<title>数独</title>
+
+<style>
+body {
+  font-family: '微软雅黑';
+}
+
+#result {
+  position: relative;
+  width: 474px;
+  height: 40px;
+  font-size: 20px;
+}
+#time {
+  position: absolute;
+  top: 5px;
+  left: 380px;
+}
+#errors {
+  position: absolute;
+  top: 5px;
+  left: 120px;
+}
+#digitsCon {
+  position: relative;
+  top: 10px;
+  width: 500px;
+  height: 52px;
+  cursor: pointer;
+}
+#digitsCon div {
+  float: left;
+  width: 50px;
+  height: 50px;
+  margin-right: 1px;
+  border: 1px solid brown;
+  line-height: 50px;
+  text-align: center;
+  background-color: brown;
+  font-size: 30px;
+}
+#eraser {
+  clear: both;
+  position: relative;
+  left: 371px;
+  width: 50px;
+  height: 50px;
+  border: 1px solid brown;
+  line-height: 45px;
+  text-align: center;
+  background-color: brown;
+  font-size: 12px;
+  cursor: pointer;
+}
+#markMode {
+  clear: both;
+  position: relative;
+  top: -52px;
+  left: 424px;
+  width: 50px;
+  height: 50px;
+  border: 1px solid brown;
+  line-height: 45px;
+  text-align: center;
+  background-color: brown;
+  font-size: 12px;
+  cursor: pointer;
+}
+#restart {
+  position: relative;
+  top: 30px;
+}
+</style>
+
+</head>
+
+<body>
+  <div id="result">
+    <div id="time">00 : 00</div>
+    <div id="errors">0</div>
+  </div>
+
+  <div id="grid"></div>
+  <div id="digitsCon">
+    <div>1</div>
+    <div>2</div>
+    <div>3</div>
+    <div>4</div>
+    <div>5</div>
+    <div>6</div>
+    <div>7</div>
+    <div>8</div>
+    <div>9</div>
+  </div>
+  <button id="restart">重来</button>
+  <div id="eraser">橡皮擦</div>
+  <div id="markMode">标记关闭</div>
+
+
+<script>
+var grid = [];
+var numberPlaces = [];
+var selectedPos = {row: -1, col: -1};
+var markModeOpened = false;
+var canErase = false;
+var errors = 0;
+var timekeeper = null;
+
+newGridCell();
+
+function Cell() {
+  this.number = 0;
+  this.markedColor = null;
+  this.markedNumbers = [];
+  this.isBlank = function() {
+    return this.number == 0;
+  }
+  this.hasNumber = function() {
+    return !this.isBlank();
+  }
+  this.hasMark = function() {
+    return this.markedNumbers.length > 0;
+  }
+}
+
+function newGridCell() {
+  for(var r = 0; r < 9; r++) {
+    grid.push([]);
+    for(var c = 0; c < 9; c++)
+      grid[r][c] = new Cell();
+  }
+}
+
+function numberToGrid(strData) {
+  for(var r = 0; r < 9; r++)
+    for(var c = 0; c < 9; c++) {
+      var cell = grid[r][c];
+      cell.number = strData[r * 9 + c] - 0;
+      cell.markedColor = null;
+      cell.markedNumbers.length = 0;
+    }
+}
+
+function findNumberPlaces() {
+  for(var r = 0; r < 9; r++)
+    for(var c = 0; c < 9; c++) {
+      var n = grid[r][c].number;
+      if(! numberPlaces[n])
+        numberPlaces[n] = [];
+      numberPlaces[n].push({row: r, col: c});
+    }
+}
+
+function boxAt(row, col) {
+  return Math.floor(Math.floor(row / 3) * 3 + Math.floor(col / 3));
+}
+
+function existsRow(row, number) {
+  for(var c = 0; c < 9; c++)
+    if(grid[row][c].number == number)
+      return true;
+  return false;
+}
+
+function existsCol(col, number) {
+  for(var r = 0; r < 9; r++)
+    if(grid[r][col].number == number)
+      return true;
+  return false;
+}
+
+function existsBox(n, number) {
+  var sr = Math.floor(n / 3) * 3, sc = n % 3 * 3;
+  for(var r = sr + 2; r >= sr; r--)
+    for(var c = sc + 2; c >= sc; c--)
+      if(grid[r][c].number == number)
+        return true;
+  return false;
+}
+
+
+function Timekeeper(elem) {
+  function to2p(n) { return n > 9 ? n : '0' + n; }
+
+  var time = {h: 0, m: 0, s: 0};
+  var timer;
+  this.timekeep = function() {
+    ++time.s;
+    if(time.s == 60) {
+      time.s = 0;
+      ++time.m;
+    }
+    if(time.m == 60) {
+      time.m = 0;
+      ++time.h;
+    }
+    var str;
+    str = to2p(time.m) + ' : ' + to2p(time.s);
+    if(time.h > 0)
+      str = to2p(time.h) + ' : ' + str;
+    elem.innerHTML = str;
+  }
+
+  this.start = function() {
+    timer = setInterval(this.timekeep, 1000);
+  }
+
+  this.stop = function() {
+    if(timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+  }
+
+  this.restart = function() {
+    if(timer) {
+      this.stop();
+      time.h = time.m = time.s = 0;
+    }
+    this.start();
+  }
+}
+
+function drawErrors() {
+  divErrors.innerHTML = errors;
+}
+
+function drawGrid() {
+  for(var r = 0; r < 9; r++)
+    for(var c = 0; c < 9; c++) {
+      var div = divCell(r, c);
+      div.style.backgroundColor = 'white';
+      div.style.border = '1px solid gray';
+      div.style.lineHeight = '50px';
+      div.style.textAlign = 'center';
+      div.style.fontSize = '30px';
+      if(grid[r][c].hasNumber()) {
+        div.innerHTML = grid[r][c].number;
+      } else {
+        div.innerHTML = '';
+      }
+    }
+}
+
+function drawPos(erase) {
+  divCell(selectedPos).style.borderColor = erase ? 'gray' : 'red';
+  for(var c = 0; c < 9; c++)
+    if(c != selectedPos.col)
+      backColor(divCell(selectedPos.row, c), erase ? 'white' : 'yellow');
+  for(var r = 0; r < 9; r++)
+    if(r != selectedPos.row)
+      backColor(divCell(r, selectedPos.col), erase ? 'white' : 'yellow');
+}
+
+function drawPlaces(erase) {
+  var places = numberPlaces[grid[selectedPos.row][selectedPos.col].number];
+  for(var i = 0; i < places.length; i++)
+    backColor(divCell(places[i]), erase ? 'white' : 'blue');
+}
+
+function drawMarkedNumbers(markedNumbers, erase) {
+  var selCell = divCell(selectedPos);
+  if(erase) {
+    selCell.style.lineHeight = '50px';
+    selCell.style.fontSize = '30px';
+    selCell.innerHTML = '';
+  } else {
+    var html = '';
+    for(var i = 0; i < markedNumbers.length; i++) {
+      html += '<span>' + markedNumbers[i] + '</span>';
+      if(i % 3 == 2)
+        html += '</br>';
+      else
+        html += ' ';
+    }
+    selCell.style.lineHeight = '17px';
+    selCell.style.fontSize = '10px';
+    selCell.innerHTML = html;
+  }
+}
+
+function drawLight(elem, light) {
+  elem.style.backgroundColor =  light ? 'brown' : 'gray';
+  elem.style.borderColor =  light ? 'brown' : 'gray';
+}
+
+function drawEraser() {
+  canErase = grid[selectedPos.row][selectedPos.col].hasMark();
+  drawLight(eraser, canErase);
+}
+
+function drawMark(button, open) {
+  var color;
+  if(open) {
+    button.innerHTML = '标记关闭';
+    color = 'brown';
+  } else {
+    button.innerHTML = '标记开启';
+    color = 'gray';
+  }
+  button.style.backgroundColor = color;
+  button.style.borderColor = color;
+}
+
+function lightMarkedDigits() {
+  if(!markModeOpened || selectedPos.row == -1)
+    return;
+  var markedNumbers = grid[selectedPos.row][selectedPos.col].markedNumbers;
+  for(var n = 1; n <= 9; n++) {
+    if(!divDigits[n - 1].removed) {
+      var hasn = markedNumbers.indexOf(n) != -1;
+      drawLight(divDigits[n - 1], hasn);
+    }
+  }
+}
+
+
+function removeFilledDigitButtons() {
+  for(var i = 0; i < divDigits.length; i++)
+    if(numberPlaces[divDigits[i].innerHTML - 0].length >= 9) {
+      divDigits[i].removed = true;
+      divDigits[i].style.backgroundColor = 'transparent';
+      divDigits[i].style.borderColor = 'transparent';
+      divDigits[i].onclick = null;
+    }
+}
+
+function cellOnClick() {
+  if(selectedPos.row != -1) {
+    var prev = grid[selectedPos.row][selectedPos.col];
+    if(prev.hasNumber())
+      drawPlaces(true);
+    else
+      drawPos(true);
+  }
+
+  var arr = this.id.split('_');
+  selectedPos.row = arr[0] - 0;
+  selectedPos.col = arr[1] - 0;
+  if(grid[selectedPos.row][selectedPos.col].hasNumber()) {
+    drawPlaces();
+  } else {
+    drawPos();
+  }
+  lightMarkedDigits();
+  drawEraser();
+}
+
+function digitOnClick() {
+  if(selectedPos.row == -1 || grid[selectedPos.row][selectedPos.col].hasNumber())
+    return;
+
+  var putNumber = this.innerHTML - 0;
+  if(markModeOpened) {
+    var markedNumbers = grid[selectedPos.row][selectedPos.col].markedNumbers;
+    var index = markedNumbers.indexOf(putNumber);
+    var contains = index != -1;
+    if(contains) {
+      function remove(arr, index) {
+        arr[index] = arr[arr.length - 1];
+        --arr.length;
+        return arr;
+      }
+      remove(markedNumbers, index);
+    } else {
+      markedNumbers.push(putNumber);
+    }
+
+    drawMarkedNumbers(markedNumbers);
+    lightMarkedDigits();
+  } else {
+    if(existsRow(selectedPos.row, putNumber) ||
+       existsCol(selectedPos.col, putNumber) ||
+       existsBox(boxAt(selectedPos.row, selectedPos.col), putNumber)) {
+      errors++;
+      drawErrors();
+      return;
+    }
+    numberPlaces[putNumber].push({row: selectedPos.row, col: selectedPos.col});
+    grid[selectedPos.row][selectedPos.col].number = putNumber;
+
+    drawMarkedNumbers(null, true);
+    divCell(selectedPos).innerHTML = putNumber;
+    drawPos(true);
+    divCell(selectedPos).click();
+    removeFilledDigitButtons();
+  }
+
+  drawEraser();
+}
+
+function markOnClick() {
+  drawMark(this, markModeOpened);
+  for(var i = 0; i < divDigits.length; i++)
+    if(!divDigits[i].removed)
+      drawLight(divDigits[i], markModeOpened);
+
+  markModeOpened = !markModeOpened;
+
+  lightMarkedDigits();
+}
+
+function eraserOnClick() {
+  if(canErase) {
+    grid[selectedPos.row][selectedPos.col].markedNumbers.length = 0;
+    drawMarkedNumbers(null, true);
+    lightMarkedDigits();
+    drawEraser();
+  }
+}
+
+function restartOnClick() {
+  startLevel();
+}
+
+
+function startLevel() {
+  numberPlaces.length = 0;
+  selectedPos.row = -1;
+  selectedPos.col = -1;
+  markModeOpened = false;
+  canErase = false;
+  errors = 0;
+
+  var LEVEL_ONE =
+  "107003080"+
+  "056090007"+
+  "389070205"+
+  "002367590"+
+  "070982406"+
+  "908001723"+
+  "604710002"+
+  "725439861"+
+  "000600374";
+  numberToGrid(LEVEL_ONE);
+  findNumberPlaces();
+  drawGrid();
+  drawErrors();
+  for(var i = 0; i < divDigits.length; i++)
+    drawLight(divDigits[i], true);
+  drawLight(eraser, false);
+  removeFilledDigitButtons();
+  drawMark(divMark, true);
+  timekeeper.restart();
+}
+
+onload = function() {
+  var divGrid = $('grid');
+  divGrid.style.position = 'relative';
+  divGrid.style.width = 9 * 53 + 'px';
+  divGrid.style.height = 9 * 53 + 'px';
+
+  divCellCache = {};
+  for(var r = 0; r < 9; r++) {
+    for(var c = 0; c < 9; c++) {
+      var divCell = document.createElement('div');
+      divCell.id = r + '_' + c;
+      divCell.style.position = 'absolute';
+      divCell.style.left = ((50 + 2 + 1) * c) + 'px';
+      divCell.style.top = ((50 + 2 + 1) * r) + 'px';
+      divCell.style.width = '50px';
+      divCell.style.height = '50px';
+      divCell.style.cursor = 'pointer';
+      divCell.onclick = cellOnClick;
+      divGrid.appendChild(divCell);
+
+      divCellCache[divCell.id] = divCell;
+    }
+  }
+  divErrors = $('errors');
+  divDigits = $('digitsCon').children;
+  for(var i = 0; i < divDigits.length; i++)
+    divDigits[i].onclick = digitOnClick;
+  divMark = $('markMode');
+  divMark.onclick = markOnClick;
+  divEraser = $('eraser');
+  divEraser.onclick = eraserOnClick;
+  btnRestart = $('restart');
+  btnRestart.onclick = restartOnClick;
+
+  timekeeper = new Timekeeper($('time'));
+
+  startLevel();
+}
+
+//var divCellCache = {};
+function divCell() {
+  var id;
+  if(arguments.length == 1) {
+    if(typeof arguments[0] == 'string')
+      id = arguments[0];
+    else {
+      var index2d = arguments[0];
+      id = index2d.row + '_' + index2d.col;
+    }
+  }
+  if(arguments.length == 2) {
+    id = arguments[0] + '_' + arguments[1];
+  }
+  return divCellCache[id];
+}
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+function backColor(e, val) { 
+  if(val == undefined)
+    return e.style.backgroundColor;
+  else
+   return e.style.backgroundColor = val;
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>计算 by Problue</title>
+</head>
+<body>
+
+<div id="space">
+</div>
+
+<div id="now" style="position:absolute;top:810px;width:650px;">
+  当前数(<span id="base"></span>进制): <span id="nown"></span></br>
+  当前数(10进制): <span id="dcount"></span>
+</div>
+<div id="add" style="position:absolute;top:860px;width:650px;">
+  <button onclick="count()">手动加1</button>
+  <button id="autoSwitch" onclick="startstopAuto()">开始自动加1</button>
+  <button onclick="zero()">清零</button>
+</div>
+<div id="set" style="position:absolute;top:900px;width:650px;height:50px;">
+  长(Y):<input type="text" id="lengthInput" style="width:30px;"></input>
+  宽(X):<input type="text" id="widthInput" style="width:30px;"></input>
+  进制系统:<input type="text" id="baseInput" style="width:24px;"></input>
+  毫秒:<input type="text" id="msIntervalInput" style="width:30px;"></input>
+   
+  <button onclick="apply()">使用</button></br>
+</div>
+
+<script>
+var symbolTable = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'];
+var base = 2;
+var length = 10;
+var width = 10;
+var maxn = Math.pow(base, width);
+if(maxn == 1) {
+  maxn = width;
+}
+
+var dcount = 0;
+var space = [];//最左记录高位,最右记录低位
+var timer = null;
+var msInterval = 100;
+
+initSpace();
+zeroClear();
+redraw();
+
+function initSpace() {
+  var spaceDiv = $('#space');
+  spaceDiv.innerHTML = '';
+  spaceDiv.style.position = 'relative';
+
+  for(var i = 0; i < width; i++) {
+    var div = document.createElement('div');
+    div.style.width = '18px';
+    div.style.float = 'left';
+    for(var j = 0; j < length; j++) {
+      var div1 = document.createElement('div');
+      div1.style.height = '13px';
+      div1.style.textAlign = 'center';
+      var input = document.createElement('input');
+      input.type = 'radio';
+      div1.appendChild(input);
+      div.appendChild(div1);
+    }
+    var div2 = document.createElement('div');
+    div2.id = 'col' + (width - 1 - i);
+    div2.style.height = '13px';
+    div2.style.width = '18px';
+    div2.style.textAlign = 'center';
+    div.appendChild(div2);
+
+    spaceDiv.appendChild(div);
+  }
+
+  $('#now').style.top = (13 * length + 30) + 'px';
+  $('#add').style.top = (13 * length + 80) + 'px';
+  $('#set').style.top = (13 * length + 120) + 'px';
+}
+
+function zero() {
+  startstopAuto('stop');
+  zeroClear();
+  redraw();
+}
+
+function apply() {
+  startstopAuto('stop');
+
+  var inputval = parseInt($('#lengthInput').value);
+  var isNewLength = inputval != length;
+  if(isNewLength) {
+    length = inputval;
+  }
+
+  var inputval = parseInt($('#widthInput').value);
+  var isNewWidth = inputval != width;
+  if(isNewWidth) {
+    width = inputval;
+    space.length = 0;
+    for(var i = 0; i < width; i++) {
+      space.push(0);
+    }
+  }
+
+  if(isNewLength || isNewWidth) {
+    initSpace();
+  }
+
+  var inputval = parseInt($('#baseInput').value);
+  //var isNewBase = inputval != base;
+  if(isNaN(inputval)) {
+    inputval = 2;
+  } else {
+    if(inputval < 1) {
+      inputval = 1;
+    }
+    if(inputval > length) {
+      inputval = length;
+    }
+  }
+  base = inputval;
+  maxn = Math.pow(base, width);
+  if(maxn == 1) {
+    maxn = width;
+  }
+  
+
+  var inputval = $('#msIntervalInput').value;
+  //var isNewMSInterval = inputval != msInterval;
+  if(isNaN(inputval)) {
+    inputval = 100;
+  } else {
+    inputval = Math.abs(inputval);
+  }
+  msInterval = inputval;
+
+  zeroClear();
+  redraw();
+}
+
+function zeroClear() {
+  for(var i = 0; i < width; i++) {
+    space[i] = 0;
+  }
+  dcount = 0;
+}
+
+function count() {
+  if(dcount == maxn) {
+    zeroClear();
+    redraw();
+    if(timer) {
+      startstopAuto('stop');
+      startstopAuto('start');
+    }
+    return;
+  }
+
+  dcount++;
+  
+  if(base > 1) {
+    space[0]++;
+    for(var p = 0; p < width - 1; p++) {
+      if(space[p] == base) {
+        space[p + 1]++;
+      }
+    }
+    for(var p = 0; p < width; p++) {
+      if(space[p] == base) {
+        space[p] = 0;
+      }
+    }
+  } else {
+    for(var p = 0; p < width; p++) {
+      space[p] = 0;
+    }
+    space[dcount - 1] = 1;
+  }
+  redraw();
+}
+
+function startstopAuto(action) {
+  if(action == 'stop' || timer) {
+    clearInterval(timer);
+    timer = null;
+    $('#autoSwitch').innerHTML = '开始自动加1';
+  } else {
+    timer = setInterval(count, msInterval);
+    $('#autoSwitch').innerHTML = '暂停自动加1';
+  }
+}
+
+
+function redraw() {
+  for(var p = 0; p < width; p++) {
+    var radios = $('#space').children[width - 1 - p].getElementsByTagName('input');
+    for(var i = 0; i < radios.length; i++) {
+      radios[i].checked = false;
+    }
+    for(var n = 0; n < space[p]; n++) {
+      radios[radios.length - 1 - n].checked = true;
+    }
+  }
+  
+  var nown = [];
+  for(var p = 0; p < width; p++) {
+    var sym; 
+    if(base <= 16) {
+        sym = symbolTable[space[p]];
+    } else {
+        sym = space[p];
+    }
+    $('#col' + p).innerHTML = sym;
+    nown.push(sym);
+  }
+
+  $('#nown').innerHTML = nown.slice().reverse().join('');
+  $('#base').innerHTML = base < 10 ? '0' + base : base;
+
+  var zeros = '';
+  for(var n = width - dcount.toString().length; n > 0; n--)
+    zeros += '0';
+  $('#dcount').innerHTML = zeros + dcount;
+
+  $('#baseInput').value = base;
+  $('#msIntervalInput').value = msInterval;
+  $('#widthInput').value = width;
+  $('#lengthInput').value = length;
+}
+
+function $(selector) {
+  return document.getElementById(selector.substring(1));
+}
+
+</script>
+</body>
+</html>

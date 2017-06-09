@@ -1,0 +1,83 @@
+body{
+	color:white;
+	font-family: 'Î¢ÈíÑÅºÚ';
+}
+button {
+	font-family: 'Î¢ÈíÑÅºÚ';
+	color:white;
+	border: none;
+}
+
+#gamefield {
+	position: relative;
+}
+#gamefield button{
+	width:26px;
+	height:26px;
+	margin-right: 2px;
+	margin-top: 2px;
+	border:none;
+	border-radius: 2px;
+}
+
+#options {
+    position: absolute;
+    width: 0;
+		height:100%;
+		overflow:hidden;
+		top: 0px;
+		left:10px;
+    background: black;
+    color: white;
+		opacity:0.5;
+		white-space: nowrap;
+		padding-left:5px;
+		padding-right:10px;
+		display:none;
+		font-size:16px;
+}
+#options p{
+		line-height: 10px;
+}
+#options button {
+    width: 80%;
+    height: 30px;
+    border: none;
+		border-radius: 2px;
+		font-size:16px;
+}
+#options [name=back] {
+		width: 80px;
+		height:40px;
+		position:absolute;
+		border-radius:0px;
+		left:0px;
+		background-color:#ec3596;
+}
+#options input {
+    background-color: black;
+    opacity: 1;
+    border: none;
+    color: white;
+}
+#options .tip {
+		font-size: 13px;
+}
+#pause {
+	z-index:999;
+	position:absolute;
+	top:0px;
+	left:0px;
+	text-align:center;
+	color:black;
+	font-size:40px;
+	display:none;
+}
+#pause button {
+    width: 120px;
+    height: 50px;
+    text-align: center;
+    display: none;
+		position: absolute;
+		font-size:22px;
+}

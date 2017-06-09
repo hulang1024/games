@@ -1,0 +1,57 @@
+# Project: consoleTank
+# Makefile created by Dev-C++ 4.9.9.2
+
+CPP  = g++.exe
+CC   = gcc.exe
+WINDRES = windres.exe
+RES  = 
+OBJ  = main.o tank.o formats.o bullets.o game.o stage.o pcc32.o map.o draw.o menu.o $(RES)
+LINKOBJ  = main.o tank.o formats.o bullets.o game.o stage.o pcc32.o map.o draw.o menu.o $(RES)
+LIBS =  -L"D:/Program Files/Application/DEV-CPP/lib"  
+INCS =  -I"D:/Program Files/Application/DEV-CPP/include" 
+CXXINCS =  -I"D:/Program Files/Application/DEV-CPP/lib/gcc/mingw32/3.4.2/include"  -I"D:/Program Files/Application/DEV-CPP/include/c++/3.4.2/backward"  -I"D:/Program Files/Application/DEV-CPP/include/c++/3.4.2/mingw32"  -I"D:/Program Files/Application/DEV-CPP/include/c++/3.4.2"  -I"D:/Program Files/Application/DEV-CPP/include" 
+BIN  = consoleTank.exe
+CXXFLAGS = $(CXXINCS)  
+CFLAGS = $(INCS)  
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before consoleTank.exe all-after
+
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CC) $(LINKOBJ) -o "consoleTank.exe" $(LIBS)
+
+main.o: main.c
+	$(CC) -c main.c -o main.o $(CFLAGS)
+
+tank.o: tank.c
+	$(CC) -c tank.c -o tank.o $(CFLAGS)
+
+formats.o: formats.c
+	$(CC) -c formats.c -o formats.o $(CFLAGS)
+
+bullets.o: bullets.c
+	$(CC) -c bullets.c -o bullets.o $(CFLAGS)
+
+game.o: game.c
+	$(CC) -c game.c -o game.o $(CFLAGS)
+
+stage.o: stage.c
+	$(CC) -c stage.c -o stage.o $(CFLAGS)
+
+pcc32.o: pcc32.c
+	$(CC) -c pcc32.c -o pcc32.o $(CFLAGS)
+
+map.o: map.c
+	$(CC) -c map.c -o map.o $(CFLAGS)
+
+draw.o: draw.c
+	$(CC) -c draw.c -o draw.o $(CFLAGS)
+
+menu.o: menu.c
+	$(CC) -c menu.c -o menu.o $(CFLAGS)

@@ -1,0 +1,391 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>拼图</title>
+</head>
+<style>
+#main{
+  position: relative;
+		top: -100px;
+  margin: 0 auto;
+  width: 1000px;
+  height: 800px;
+}
+	
+</style>
+<body>
+<!--
+<div>
+	<ul id="list">
+		<li></li>
+		<li></li>
+		<li></li>
+	</ul>
+	<div>
+		<button id="prev"></button>
+		<button id="next"></button>
+	</div>
+</div>
+-->
+	<div>
+		图片URL:<input type="text" id="picURL" value="http://sandbox.runjs.cn/uploads/rs/328/jgivuqas/dfibz7gn.jpg" />
+						<input type="file" id="file" />
+	</div>
+	<div style="position:relative;top:10px;width:100px;z-index:1">
+		行数:<input type="text" id="rows" value="6" size="3" style="width:50px;"/>
+		列数:<input type="text" id="cols" value="6" size="3" style="width:50px;"/>
+		间隔(px):<input type="text" id="gap" value="1" size="2" style="width:20px;"/>
+	  <button id="gen" disabled="disabled">生成随机拼图</button>
+		<button id="see" style="visibility: hidden" title="显示原图">?</button>
+		<br>开启动画:<input type="checkbox" id="animationEnable" checked="checked"/>
+	</div>
+  
+	<div id="main">
+		<div id="org" style="z-index:999; position:absolute;display:block"></div>
+		<div id="show" style="position:absolute;">
+			<img src="" />
+		</div>
+	</div>
+
+<script src="libs/jquery/jquery.min.js"></script>
+<script>
+Math.sign = Math.sign || function(x){
+	if(x == 0) return 0;
+	return x > 0 ? 1 : -1;
+};
+
+var DEF_ROWS = 6;
+var DEF_COLS = 6;
+var puzzle;
+var picURL, picW, picH;
+var steps;
+
+onload = function() {
+  $('#picURL').change(function(){
+    $('#gen').attr('disabled', true);
+    var orgImage = new Image();
+    orgImage.src = $(this).val();
+    orgImage.onload  = function() {
+      if(this.width > 0) {
+        picURL = this.src;
+        picW = this.width;
+        picH = this.height;
+        $('#org').html('').append(orgImage);
+        $('#org').hide();
+				$('#main').width(this.width).height(this.height);
+        $('#show').html('').append('<img src="' + picURL +'" />');
+        $('#gen').attr('disabled', false);
+        $('#see').css('visibility', 'hidden');
+        $('#rows').val(DEF_ROWS);
+        $('#cols').val(DEF_COLS);
+      }
+    };
+  });
+	
+	$('#file').change(function(){
+		if(this.files.length) {
+			var reader = new FileReader();
+			reader.readAsDataURL(this.files[0]);
+			reader.onload = function() {
+				$('#picURL').val(this.result).change();
+			};
+			
+		}
+	});
+		
+  $('#see').mouseover(function(){
+    $('#org').show();
+  });
+  $('#see').mouseout(function(){
+    $('#org').hide();
+  });
+	
+  $('#gen').click(function(){
+    init();
+  });
+	
+  $('#picURL').change();
+}
+
+function init() {
+  if(! (picURL && picW > 0 && picH > 0))
+    return;
+
+  var rows = parseInt($('#rows').val());
+  var cols = parseInt($('#cols').val());
+	if(isNaN(rows + cols) || rows + cols <= 2) {
+		rows = cols = 3;
+	}
+  rows = getP(picH, rows);
+  cols = getP(picW, cols);
+  $('#rows').val(rows);
+  $('#cols').val(cols);
+	
+	var gap = parseInt($('#gap').val());
+	if(isNaN(gap) || gap < 0) {
+		gap = 0;
+	}
+  $('#gap').val(gap);
+	
+  puzzle = randomPuzzle(makePuzzle(rows, cols));
+  steps = 0;
+	
+  var pieceW = picW / cols;
+  var pieceH = picH / rows;
+	
+  $('#org').hide();
+  $('#see').css('visibility', 'visible');
+  var show = $('#show');
+  $(show).html('');
+  for(var r = 0; r < rows; r++) {
+    for(var c = 0; c < cols; c++) {
+      var div = $('<div></div>');
+      div.attr('id', r + '_' + c);
+			div.css({
+				zIndex: 1,
+				position: 'absolute',
+				left: pieceW * c + (gap / 2) + 'px', top: pieceH * r + (gap / 2) + 'px',
+				width: pieceW - gap + 'px', height: pieceH - gap + 'px',
+				cursor: 'pointer'});
+      var piecei = piece(puzzle, r, c);
+      var pr = parseInt(piecei / cols);
+      var pc = piecei % cols;
+      div.css('background', 'url(' + picURL + ') '
+        + ('-' + (pc * pieceW) + 'px') + ' ' + ('-' + (pr * pieceH) + 'px')
+        + ' no-repeat');
+			
+      div.click(click);
+	
+      show.append(div);
+    }
+  }
+	
+  function getP(x, f) {
+    while(x / f != Math.floor(x / f))
+      f--;
+    return f;
+  }
+}
+	
+var id1, id2, idn = 0;
+var animalDone = true;
+//点击事件处理
+function click() {
+	if(!animalDone) return;
+  if(this.id) {
+		$('#' + this.id).css('opacity', 0.6);
+    if(idn == 0) {
+			id1 = this.id;
+		}
+    if(idn == 1) {
+			id2 = this.id;
+		}
+    if(id1 != id2) { 
+      idn = +!idn;
+      steps++;
+    } else {
+			$('#' + this.id).css('opacity', 1);
+			id1 = id2 = null;
+      idn = 0;
+      return;
+    }
+  }
+  if(id1 && id2) {
+    animalDone = false;
+    puzzle = swapPiece(puzzle, toPieceIndex(id1), toPieceIndex(id2));
+    swapAndAnimal(id1, id2, function(){
+      animalDone = true;
+      if(isOrdered(puzzle)) {
+        alert('恭喜~完成拼图.');
+      }
+    });
+    id1 = id2 = null;
+  }
+	
+  function toPieceIndex(idStr) {
+    var arr = idStr.split('_');
+    var r = arr[0] - 0;
+    var c = arr[1] - 0;
+    return make_index2d(r, c);
+  }
+}
+
+function swapAndAnimal(aId, bId, doneFun) {
+  var aEl = document.getElementById(aId);
+  var bEl = document.getElementById(bId);
+  aEl.id = bId;
+  bEl.id = aId;
+	if($('#animationEnable').prop('checked')) {
+		var dx = toVal(aEl.style.left) - toVal(bEl.style.left);
+		var dy = toVal(aEl.style.top) - toVal(bEl.style.top);
+		aEl.style.zIndex = 999;
+		bEl.style.zIndex = 999;
+		var timer = setTimeout(function() {
+			if(dx == 0 && dy == 0) {
+				clearInterval(timer);
+				aEl.style.zIndex = 1;
+				bEl.style.zIndex = 1;
+				$(aEl).css('opacity', 1);
+				$(bEl).css('opacity', 1);
+				doneFun();
+				return;
+			}
+			var xSign = Math.sign(dx);
+			var ySign = Math.sign(dy);
+			aEl.style.left = toVal(aEl.style.left) - xSign + 'px';
+			aEl.style.top = toVal(aEl.style.top) - ySign + 'px';
+			bEl.style.left = toVal(bEl.style.left) + xSign + 'px';
+			bEl.style.top = toVal(bEl.style.top) + ySign + 'px';
+			dx = dx - xSign;
+			dy = dy - ySign;
+			timer = setTimeout(arguments.callee, 1);
+		}, 1);
+	} else {
+		var temp = $(aEl).offset();
+		$(aEl).offset($(bEl).offset());
+		$(bEl).offset(temp);
+		$(aEl).css('opacity', 1);
+		$(bEl).css('opacity', 1);
+		doneFun();
+	}
+}
+
+function toVal(pxStr) {
+  return pxStr.substring(0, pxStr.indexOf('px')) - 0;
+}
+
+	
+/*拼图板*/
+function randomPuzzle(puzzle) {
+  var rows = array2d_rows(puzzle);
+  var cols = array2d_cols(puzzle);
+  for(var r = 0; r < rows; r++)
+    for(var c = 0; c < cols; c++)
+      puzzle = array2d_set(puzzle, r, c, r * cols + c);
+
+  do { 
+    for(var i = 0; i < rows * cols; i++) 
+      puzzle = swapPiece(puzzle,
+        make_index2d(randInt(0, rows), randInt(0, cols)),
+        make_index2d(randInt(0, rows), 0));
+  } while(isOrdered(puzzle));
+  return puzzle;
+	
+  function randInt(m, n) {
+    return Math.floor(Math.random() * (n - m)) + m;
+  }
+}
+
+function swapPiece(puzzle, a, b) {
+  if(index2d_row(a) == index2d_row(b) && index2d_col(a) == index2d_col(b))
+    return puzzle;
+  var t = array2d_get(puzzle, index2d_row(a), index2d_col(a));
+  puzzle = array2d_set(puzzle, index2d_row(a), index2d_col(a),
+    array2d_get(puzzle, index2d_row(b), index2d_col(b)));
+  puzzle = array2d_set(puzzle, index2d_row(b), index2d_col(b), t);
+  return puzzle;
+}
+
+function isOrdered(puzzle) {
+  var i = 0;
+  for(var r = 0; r < array2d_rows(puzzle); r++)
+    for(var c = 0; c < array2d_cols(puzzle); c++)
+      if(piece(puzzle, r, c) != i++)
+        return false;
+  return true;
+}
+
+function piece(puzzle, row, col) {
+  return array2d_get(puzzle, row, col);
+}
+
+function makePuzzle(rows, cols) {
+  return make_array2d(rows, cols);
+}
+
+/*二维数组*/
+function array2d_rows(array2d) { return caar(array2d); /*return array2d.rows;*/ }
+function array2d_cols(array2d) { return cdar(array2d); /*return array2d.cols;*/ }
+function array2d_elem(array2d) { return cdr(array2d); /*return array2d;*/ }
+function array2d_set(array2d, row_index, col_index, value) {
+  var n = row_index * array2d_cols(array2d) + col_index;
+  var new_array2d =
+    make_array2d(array2d_rows(array2d), array2d_cols(array2d),
+      map(array2d_elem(array2d), function(i, v){
+        return i == n ? value : v;
+      }));
+  return new_array2d;
+  /*
+  array2d[row_index][col_index] = value;
+  return array2d;
+  */
+}
+function array2d_get(array2d, row_index, col_index) {
+  return list_ref(array2d_elem(array2d), row_index * array2d_cols(array2d) + col_index);
+  //return array2d[row_index][col_index];
+}
+function make_array2d(rows, cols, list) {
+  if(list == undefined)
+    list = make_list(rows * cols);
+  return cons(cons(rows, cols), list);
+  /*
+  var array2d = [];
+  for(var r = 0; r < rows; r++) {
+    array2d.push(new Array(cols));
+	}
+  array2d.rows = rows;
+  array2d.cols = cols;
+  return array2d;
+  */
+}
+
+function make_index2d(row, col) { return cons(row, col); /*return [row, col];*/ }
+function index2d_row(index2d) { return car(index2d); /*return index2d[0];*/ }
+function index2d_col(index2d) { return cdr(index2d); /*return index2d[1];*/ }
+
+
+/*列表*/
+function map(items, proc) {
+  function mapn(items, n) {
+    if(!items) return items;
+    return cons(proc(n, car(items)), mapn(cdr(items), n + 1));
+  }
+  return mapn(items, 0);
+}
+
+function list_ref(items, n) {
+  if(!items) return items;
+  if(n == 0) return car(items);
+  return list_ref(cdr(items), n - 1);
+}
+
+//构造一个空(元素值都为undefined)列表
+function make_list(length) {
+  if(length == 0) return null;
+  return cons(undefined, make_list(length - 1));
+}
+
+
+/*序对*/
+function caar(x) { return car(car(x)); }
+function cdar(x) { return cdr(car(x)); }
+function cadr(x) { return car(cdr(x)); }
+function car(z) { return z(0); /*return z[0];*/  }
+function cdr(z) { return z(1); /*return z[1];*/ }
+function cons(x, y) {
+  var pair = function(m) {
+    if(m == 0) return x;
+    if(m == 1) return y;
+  }
+  pair.toString = function() {
+    return ':pair data'
+  };
+	//var pair = [x,y];
+  return pair;
+}
+
+</script>
+</body>
+
+</html>
