@@ -1,0 +1,10 @@
+﻿main:
+    // for(i = 0; i < 4; i++) alert(i)
+    M[R1] = 0;
+    R2 = M[R1];
+    BGE R2, 4, PC + 6;
+    alert(M[R1])
+    R2 = M[R1];
+    R2 = R2 + 1;
+    M[R1] = R2;
+    JUMP PC - 6;

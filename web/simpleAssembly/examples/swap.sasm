@@ -1,0 +1,35 @@
+swap:
+    alert("swap")
+    SP = SP - 4
+    // temp = *x
+    R1 = M[SP + 8]
+    R2 = M[R1]
+    M[SP] = R2
+    // *x = *y
+    R1 = M[SP + 12]
+    R2 = M[R1]
+    R3 = M[SP + 8] 
+    M[R3] = R2
+    // *y = temp
+    R1 = M[SP]
+    R2 = M[SP + 12]
+    M[R2] = R1
+    SP = SP + 4
+    RET
+
+main:
+    // int x = 11
+    // int y = 6
+    // alloc param
+    SP = SP - 8
+    M[SP + 4] = 11
+    M[SP] = 6
+    alert("x=" + M[SP + 4] + "," + "y=" + M[SP])
+    // swap(&x, &y)
+    SP = SP - 8
+    M[SP + 4] = SP + 8
+    M[SP] = SP + 12
+    CALL swap
+    SP = SP + 8
+    alert("x=" + M[SP + 4] + "," + "y=" + M[SP])
+    RET

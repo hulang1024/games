@@ -1,0 +1,22 @@
+// param n int
+fact:
+    // int fact(int n) { return n == 0 ? 1 : n * fact(n - 1); }
+    R1 = M[SP + 4]
+    BNE R1, 0, PC + 3
+    RV = 1
+    RET
+    R1 = M[SP + 4]
+    R1 = R1 - 1
+    SP = SP - 4
+    M[SP] = R1
+    CALL fact
+    SP = SP + 4
+    R1 = M[SP + 4]
+    RV = R1 * RV
+    RET
+main:
+    var input = prompt("n:")
+    M[SP] = input
+    CALL fact
+    alert(RV)
+    RET
