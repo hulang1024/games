@@ -2831,8 +2831,9 @@ function loadGameBasicResources(callback) {
 	var randomDefaultBgReqs = [];
 	if(settings.skinName == 'Default') {
 		jpgFileanmes = [];
+		var bgs = ["bg1"];
 		randomDefaultBgReqs = [{contentType: 'image', filename: "menu-background",
-			filepath: useSkinBasePath + ["bg1", "bg2"][randInt(0, 2)] + '.jpg', cache: true}];
+			filepath: useSkinBasePath + bgs[randInt(0, bgs.length)] + '.jpg', cache: true}];
 	}
 	var appPngFilenames = ["transparent"];
 
