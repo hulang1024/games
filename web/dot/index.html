@@ -1,0 +1,66 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Dot!</title>
+  <style>
+    #rows,#cols {
+      width: 50px;
+    }
+    
+    #board {
+      cursor: pointer;
+    }
+    
+    #colorDisplay {
+      width: 20px;
+      height: 20px;
+      border: 1px solid black;
+    }
+    
+    #page {
+      width: 500px;
+      height: 600px;
+      margin: 0 auto;
+    }
+    
+    #format {
+      width: 800px;
+      height: 200px;
+    }
+  </style>
+</head>
+<body>
+  <div id="page">
+    <div id="board"></div>
+    <span id="position">行: 列: </span>
+    <!--
+    行: <input id="rows" type="text" value="" maxlength="3" />
+    列: <input id="cols" type="text" value="" maxlength="3" />
+    -->
+    <div id="colorPicker">
+    当前画笔色: <select>
+         <option value="rgba" selected="selected">#RGBA</option>
+         <!-- <option value="rgbacvs">R,G,B,A</option> -->
+         <!-- <option value="name">名称</option> -->
+       </select>
+     <input id="txtColor" type="text" maxlength="11" />
+     <div id="colorDisplay"></div>
+    </div>
+    <label for="eraserMode">选择橡皮擦:</label><input id="eraserMode" type="checkbox" />
+    <label for="toggleGridEnable">显示网格:</label><input id="toggleGridEnable" type="checkbox" checked="checked"/>
+  </div>
+  <div id="format">
+    图像格式:
+    <select id="selFormat">
+      <option value="default">默认</option>
+      <option value="columns">列</option>
+    </select>
+    <button id="save">保存</button>
+    <button id="open">打开</button>
+  </div>
+<script src="../libs/jquery/jquery.min.js"></script>
+<script src="../libs/signals.min.js"></script>
+<script src="dot.js"></script>
+</html>
+</body>
