@@ -562,6 +562,7 @@ $(function() {
         fileUpload.id = 'file';
         fileUpload.type = 'file';
         fileUpload.addEventListener('change', function() {
+          var files = this.files;
           if(!files.length)
             return;
           var simage = new SImage();
