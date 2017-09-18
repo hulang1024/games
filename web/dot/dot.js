@@ -28,6 +28,24 @@ function rgba2Hex(rgba) {
   }, '');
 }
 
+function copyArray(dest, src) {
+  for (var i = 0; i < src.length; i++)
+    dest[i] = src[i];
+  return dest;
+}
+
+function reverseRange(array, begin, end) {
+  var l = begin;
+  var r = end - 1;
+  var temp1, temp2;
+  for(; l < r; l++, r--) {
+    temp1 = array[l];
+    temp2 = array[r];
+    array[l] = temp2;
+    array[r] = temp1;
+  }
+}
+
 function SImage() {
     this.width = 0;
     this.height = 0;
@@ -70,9 +88,8 @@ SImage.prototype.readFromTextFile = function(file, callback) {
 var Signal = signals.Signal;
 
 function Board(params) {
+  var historyRecorder = params.historyRecorder;
   var board = this;
-  
-  var colorPicker = params.colorPicker;
   var rowNum = params.rows;
   var colNum = params.cols;
   var width = 500;
@@ -92,8 +109,10 @@ function Board(params) {
   divBoard.append(this.table);
   
   this.signals = {
-    cellOvered: new Signal(),
-    cellClicked: new Signal()
+    mousedowned: new Signal(),
+    mousemoved: new Signal(),
+    mouseuped: new Signal(),
+    clicked: new Signal()
   };
   
   this.enableGrid = function(enable) {
@@ -131,7 +150,15 @@ function Board(params) {
   }
   
   function createTable() {
-    var table = $(document.createElement('table'));
+    var table = document.createElement('table');
+    table.onmousedown = function(event) {
+      board.signals.mousedowned.dispatch(event);
+    };
+    table.onmouseup = function(event) {
+      board.signals.mouseuped.dispatch(event);
+    };
+    
+    table = $(table);
     table.attr('cellpadding', 0);
     table.attr('cellspacing', 0);
     table.css({
@@ -147,24 +174,14 @@ function Board(params) {
       tr = $(document.createElement('tr'));
       for (var c = 0; c < colNum; c++) {
         td = document.createElement('td');
-        td.index = [r, c];
+        td.position = {y: r, x: c};
         td.id = r + '-' + c;
         
-        td.onmouseover = function() {
-          $(this).css({
-            outline: '1px solid red',
-          });
-          board.signals.cellOvered.dispatch(this);
+        td.onmousemove = function(event) {
+          board.signals.mousemoved.dispatch(event);
         };
-        td.onmouseout = function() {
-          $(this).css({
-            outline: gridEnabled ? DEFAULT_OUTLINE: '',
-          });
-          board.signals.cellOvered.dispatch(this);
-        };
-        
-        td.onclick = function() {
-          board.signals.cellClicked.dispatch(this);
+        td.onclick = function(event) {
+          board.signals.clicked.dispatch(event);
         };
         
         td = $(td);
@@ -188,12 +205,15 @@ function Board(params) {
 function ColorPicker() {
   var value = '';
   
-  this.setValue = function(_value) {
-    value = _value;
+  this.setRgbaHexValue = function(_value) {
+    value = '#' + _value;
     $('#txtColor').val(value);
     $('#txtColor').change();
   }
-  this.getValue = function() {
+  this.getRgbaIntArray = function() {
+    return hexRgbaValue2IntArray(value.substring(1));
+  }
+  this.getCode = function() {
     return value;
   }
   
@@ -203,37 +223,307 @@ function ColorPicker() {
   });
 }
 
-function loadFile(files) {
-  if(!files.length)
-    return;
-  var simage = new SImage();
-  simage.readFromTextFile(files[0], function() {
-    board.setSImage(simage);
-  });
+function Eraser() {
+   
+}
+
+function ColorFiller() {
+  this.fill = function(color, position, simage) {
+    fill(color, position.x, position.y, simage);
+  };
+  
+  function fill(color, x, y, simage) {
+    if ((0 <= x && x < simage.width) && (0 <= y && y < simage.height) && isFillable(simage.data[y * simage.width + x])) {
+      simage.data[y * simage.width + x] = color;
+      fill(color, x - 1, y, simage);
+      fill(color, x + 1, y, simage);
+      fill(color, x, y - 1, simage);
+      fill(color, x, y + 1, simage);
+    }
+  }
+  
+  function isFillable(rgba) {
+    return rgba[3] == 0 || rgba.reduce(function(s, n){ return s + n; }, 0) >= 765;
+  }
+}
+
+function Selector(board) {
+  var vec1 = null, vec2 = null;
+  var lastRect;
+  
+  this.signals = {
+    selected: new Signal()  
+  };
+  
+  this.onClick = function(event) {
+    if (vec1 == null) {
+      vec1 = event.target.position;
+      setRangeRect(false);
+      showVec(vec1, true);
+    } else {
+      vec2 = event.target.position;
+      var rect = {};
+      rect.x = Math.min(vec1.x, vec2.x);//left vec
+      rect.y = Math.min(vec1.y, vec2.y);
+      rect.width = Math.abs(vec1.x - vec2.x) + 1;
+      rect.height = Math.abs(vec1.y - vec2.y) + 1;
+      lastRect = rect;
+
+      setRangeRect(true);
+      vec1 = vec2 = null;
+      
+      this.signals.selected.dispatch(rect);
+    }
+  };
+  
+  this.getRangeRect = function() {
+    return lastRect;
+  }
+  
+  this.setRangeRect = setRangeRect;
+  
+  function setRangeRect(b) {
+    var rect = lastRect;
+    if (!rect)
+      return;
+    showVec(vec1, b);
+    showVec(vec2, b);
+    
+    for (var y = 0; y < rect.height; y++)
+      for (var x = 0; x < rect.width; x++)
+        $(board.table.rows[rect.y + y].cells[rect.x + x]).css('outline',
+          b ? '1px dashed black' : '1px solid #dbdbdb');
+  }
+  
+  function showVec(vec, b) {
+    if (!vec)
+      return;
+    $(board.table.rows[vec.y].cells[vec.x]).css('outline',
+      b ? '1px dashed black' : '1px solid #dbdbdb');
+  }
+}
+
+function Clipboard() {
+  var content = null;
+  var isCut;
+  
+  this.copyRange = function(srcRect) {
+    content = srcRect;
+    isCut = false;
+  }
+  
+  this.cutRange = function(srcRect) {
+    content = srcRect;
+    isCut = true;
+  }
+  
+  this.pasteRange = function(destRect, simage) {
+    var srcRect = content;
+    if (destRect.width < srcRect.width || destRect.height < srcRect.height)
+      return;
+    
+    for (var y = 0; y < srcRect.height; y++)
+      for (var x = 0; x < srcRect.width; x++)
+        copyArray(
+          simage.data[(destRect.y + y) * simage.width + destRect.x + x],
+          simage.data[(srcRect.y + y) * simage.width + srcRect.x + x]);
+
+    if (isCut) {
+      clearRange(srcRect);
+    }
+  }
+  
+  this.hasContent = function() {
+    return content;
+  }
+}
+
+function clearRange(rect, simage) {
+  for (var y = 0; y < rect.height; y++)
+    for (var x = 0; x < rect.width; x++)
+      copyArray(
+        simage.data[(rect.y + y) * simage.width + rect.x + x],
+        [255,255,255,255]);
+}
+
+function flipHorizontal(rect, simage) {
+  var left;
+  for (var y = 0; y < rect.height; y++) {
+    left = (rect.y + y) * simage.width + rect.x;
+    reverseRange(simage.data, left, left + rect.width);
+  }
+}
+
+function flipVertical(rect, simage) {
+  var t, b;
+  var temp1, temp2;
+  var array = simage.data;
+  for (var x = 0; x < rect.width; x++) {
+    t = rect.y;
+    b = rect.y + rect.height - 1;
+    for(; t < b; t++, b--) {
+      temp1 = array[t * simage.width + rect.x + x];
+      temp2 = array[b * simage.width + rect.x + x];
+      array[t * simage.width + rect.x + x] = temp2;
+      array[b * simage.width + rect.x + x] = temp1;
+    }
+  }
+}
+
+function HistoryRecorder() {
+  var stack = [];
+  var top = 0;
+  
+  this.signals = {
+    pushed: new Signal()  
+  };
+  
+  this.push = function(simage) {
+    stack.push(simage);
+    top++;
+    this.signals.pushed.dispatch();
+  }
+  
+  this.isBottom = function() {
+    return top == 0;
+  }
+  this.isTop = function() {
+    return top == stack.length - 1;
+  }
+  
+  this.peek = function() {
+    return stack[top];
+  }
+  
+  this.undo = function() {
+    if (top > 0)
+      top--;
+  }
+  
+  this.redo = function() {
+    if (top < stack.length - 1)
+      top++;
+  }
 }
 
 $(function() {
-  window.colorPicker = new ColorPicker();
-  colorPicker.setValue('#FF0000');
-  
+  var historyRecorder = new HistoryRecorder();
+
   window.board = new Board({
     rows: 24,
     cols: 24,
-    colorPicker: colorPicker
+    historyRecorder: historyRecorder
   });
   
-  var eraserMode = false;
+  window.colorPicker = new ColorPicker();
+  colorPicker.setRgbaHexValue('FF0000');
+
+  var selector = new Selector(board);
+  var eraser = new Eraser();
+  var colorFiller = new ColorFiller();
+  var clipboard = new Clipboard();
+  var nowTool;
   
-  board.signals.cellOvered.add(function(cell) {
-    $('#position').text('行:' + cell.index[0] + ' ' + '列:' + cell.index[1]);
-  });
-  board.signals.cellClicked.add(function(cell) {
-    $(cell).css('background-color', eraserMode ? '' : colorPicker.getValue());
+  board.signals.mousemoved.add(function(event) {
+    var position = event.target.position;
+    $('#position').text('X:' + position.x + ', ' + 'Y:' + position.y);
   });
   
-  $('#eraserMode').change(function() {
-    eraserMode = this.checked;
+  board.signals.clicked.add(function(event) {
+    var cell = event.target;
+    
+    var nowSelector = nowTool instanceof Selector;
+    if (!nowSelector)
+      selector.setRangeRect(false);
+  
+    if (nowSelector) {
+      selector.onClick(event);
+    } else if (nowTool instanceof Eraser) {
+      $(cell).css('background-color', 'transparent');
+    } else if (nowTool instanceof ColorFiller) {
+      var simage = board.getSImage();
+      colorFiller.fill(colorPicker.getRgbaIntArray(), cell.position, simage);
+      board.setSImage(simage);
+    } else {
+      $(cell).css('background-color', colorPicker.getCode());
+    }
   });
+
+  selector.signals.selected.add(function(rect) {
+    $('#copy,#cut,#clear,#flipHorizontal,#flipVertical').prop('disabled', false);
+    if (clipboard.hasContent())
+      $('#paste').prop('disabled', false);
+  });
+  
+  historyRecorder.signals.pushed.add(function(){
+    $('#undo').prop('disabled', false);
+  });
+  
+  $('#undo').click(function() {
+    historyRecorder.undo();
+    board.setSImage(historyRecorder.peek());
+    $('#redo').prop('disabled', false);
+    if (historyRecorder.isBottom())
+      $(this).prop('disabled', true);
+  }).prop('disabled', true);
+  $('#redo').click(function() {
+    historyRecorder.redo();
+    board.setSImage(historyRecorder.peek());
+    if (historyRecorder.isTop())
+      $(this).prop('disabled', true);
+  }).prop('disabled', true);
+  
+  $('#flipHorizontal').click(function() {
+    var rect = selector.getRangeRect();
+    var simage = board.getSImage();
+    flipHorizontal(rect, simage);
+    board.setSImage(simage);
+  }).prop('disabled', true);
+  $('#flipVertical').click(function() {
+    var rect = selector.getRangeRect();
+    var simage = board.getSImage();
+    flipVertical(rect, simage);
+    board.setSImage(simage);
+  }).prop('disabled', true);
+  
+  $('#copy').click(function() {
+    var srcRect = selector.getRangeRect();
+    clipboard.copyRange(srcRect);
+  }).prop('disabled', true);
+  $('#paste').click(function() {
+    var destRect = selector.getRangeRect();
+    var simage = board.getSImage();
+    clipboard.pasteRange(destRect, simage);
+    board.setSImage(simage);
+  }).prop('disabled', true);
+  $('#cut').click(function() {
+    var srcRect = selector.getRangeRect();
+    clipboard.cutRange(srcRect);
+  }).prop('disabled', true);
+  
+  $('#clear').click(function() {
+    var rect = selector.getRangeRect();
+    var simage = board.getSImage();
+    clearRange(rect, simage);
+    board.setSImage(simage);
+  }).prop('disabled', true);
+  
+  $('#selector').change(function() {
+    nowTool = this.checked ? selector : null;
+    if (!this.checked)
+      selector.setRangeRect(false);
+    $('#colorFiller,#eraser').prop('checked', false);
+  }).prop('checked', false);
+  
+  $('#eraser').change(function() {
+    nowTool = this.checked ? eraser : null;
+    $('#colorFiller,#selector').prop('checked', false);
+  }).prop('checked', false);
+  $('#colorFiller').change(function() {
+    nowTool = this.checked ? colorFiller : null;
+    $('#eraser,#selector').prop('checked', false);
+  }).prop('checked', false);
+  
   $('#toggleGridEnable').change(function() {
     board.enableGrid(this.checked);
   });
@@ -272,7 +562,12 @@ $(function() {
         fileUpload.id = 'file';
         fileUpload.type = 'file';
         fileUpload.addEventListener('change', function() {
-            loadFile(this.files);
+          if(!files.length)
+            return;
+          var simage = new SImage();
+          simage.readFromTextFile(files[0], function() {
+            board.setSImage(simage);
+          });
         });
         document.body.appendChild(fileUpload);
     }
