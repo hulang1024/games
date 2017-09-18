@@ -372,8 +372,10 @@ function Clipboard() {
   
   this.pasteRange = function(destRect, simage) {
     var srcRect = content;
-    if (destRect.width < srcRect.width || destRect.height < srcRect.height)
+    if (destRect.width < srcRect.width || destRect.height < srcRect.height) {
+      alert('目标矩形尺寸小于源矩形尺寸');
       return;
+    }
     
     for (var y = 0; y < srcRect.height; y++)
       for (var x = 0; x < srcRect.width; x++)
@@ -382,7 +384,7 @@ function Clipboard() {
           simage.data[(srcRect.y + y) * simage.width + srcRect.x + x]);
 
     if (isCut) {
-      clearRange(srcRect);
+      clearRange(srcRect, simage);
     }
   }
   
