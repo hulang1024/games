@@ -202,25 +202,77 @@ function Board(params) {
   
 }
 
-function ColorPicker() {
-  var value = '';
-  
-  this.setRgbaHexValue = function(_value) {
-    value = '#' + _value;
-    $('#txtColor').val(value);
-    $('#txtColor').change();
-  }
+
+function ColorSelector() {
+  var selectedRgba = '000000';
+  var nextIndex = 0;
+  var COLOR_TABLE_ROWS = 3;
+  var COLOR_TABLE_COLS = 10;
   this.getRgbaIntArray = function() {
-    return hexRgbaValue2IntArray(value.substring(1));
-  }
-  this.getCode = function() {
-    return value;
+    return hexRgbaValue2IntArray(selectedRgba);
   }
   
-  $('#txtColor').change(function() {
-    value = this.value;
-    $('#colorDisplay').css('background-color', value);
-  });
+  this.getCode = function() {
+    return '#' + selectedRgba;
+  }
+  
+  this.add = function(rgba) {
+    if (nextIndex == COLOR_TABLE_COLS) {
+      for (var i = 0; i < COLOR_TABLE_COLS-1; i++)
+        $(table.rows[2].cells[i]).css('background-color',
+          $(table.rows[2].cells[i + 1]).css('background-color'));
+      nextIndex--;
+    }
+    var cell = table.rows[2].cells[nextIndex];
+    cell.enabled = true;
+    cell.rgba = rgba;
+    $(cell).css('background-color', '#' + rgba);
+    nextIndex++;
+  }
+  
+  var table = $('#colorTable').get(0);
+  var tr, td;
+  var cellSize = 20;
+  var rgbas = [
+    ['000000', '7f7f7f', '880015', 'ed1c24', 'ff7f27',
+     'fff200', '22b14c', '00a2e8', '3f48cc', 'a349a4'],
+    ['ffffff', 'c3c3c3', 'b97a57', 'ffaec9', 'ffc90e',
+     'efe4b0', 'b5e61d', '99d9ea', '7092be', 'c8bfe7']];
+  for (var r = 0; r < COLOR_TABLE_ROWS; r++) {
+    tr = document.createElement('tr');
+    for (var c = 0; c < COLOR_TABLE_COLS; c++) {
+      td = document.createElement('td');
+      td.rgba = (r < 2 ? rgbas[r][c] : 'f5f6f7');
+      td.enabled = r < 2;
+      td.onclick = function() {
+        if (!this.enabled)
+          return;
+        selectedRgba = this.rgba;
+        $('#selectedColorDisplay').css('background-color', '#' + selectedRgba);
+      };
+      td.onmouseover = function() {
+        $(this).css('outline', '1px solid #' + this.rgba);
+      };
+      td.onmouseout = function() {
+        $(this).css('outline', '');
+      };
+      $(td).css({
+        width: (cellSize - 4) + 'px',
+        height: (cellSize - 4) + 'px',
+        backgroundColor: '#' + td.rgba,
+        padding: 0,
+        border: '1px solid #a0a0a0'
+      });
+      
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  }
+  
+  $('#selectedColorDisplay').css('background-color', '#' + selectedRgba);
+}
+
+function ColorPicker() {
 }
 
 function Eraser() {
@@ -233,7 +285,8 @@ function ColorFiller() {
   };
   
   function fill(color, x, y, simage) {
-    if ((0 <= x && x < simage.width) && (0 <= y && y < simage.height) && isFillable(simage.data[y * simage.width + x])) {
+    if ((0 <= x && x < simage.width) && (0 <= y && y < simage.height)
+      && isFillable(simage.data[y * simage.width + x])) {
       simage.data[y * simage.width + x] = color;
       fill(color, x - 1, y, simage);
       fill(color, x + 1, y, simage);
@@ -407,6 +460,8 @@ function HistoryRecorder() {
 }
 
 $(function() {
+  var colorSelector = new ColorSelector();  
+    
   var historyRecorder = new HistoryRecorder();
 
   window.board = new Board({
@@ -416,7 +471,6 @@ $(function() {
   });
   
   window.colorPicker = new ColorPicker();
-  colorPicker.setRgbaHexValue('FF0000');
 
   var selector = new Selector(board);
   var eraser = new Eraser();
@@ -442,10 +496,10 @@ $(function() {
       $(cell).css('background-color', 'transparent');
     } else if (nowTool instanceof ColorFiller) {
       var simage = board.getSImage();
-      colorFiller.fill(colorPicker.getRgbaIntArray(), cell.position, simage);
+      colorFiller.fill(colorSelector.getRgbaIntArray(), cell.position, simage);
       board.setSImage(simage);
     } else {
-      $(cell).css('background-color', colorPicker.getCode());
+      $(cell).css('background-color', colorSelector.getCode());
     }
   });
 
@@ -528,6 +582,12 @@ $(function() {
     board.enableGrid(this.checked);
   });
   
+  $('#editColor').click(function() {
+    $('#colorEditor').toggle(); 
+  });
+  $('#addToCustomList').click(function() {
+    colorSelector.add($('#rgbaHex').val());
+  });
 
   $('#save').click(function(){
     var formatters = [];

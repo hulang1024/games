@@ -5,74 +5,129 @@
   <title>Dot!</title>
   <style>
     #page {
-      width: 500px;
-      height: 600px;
+      width: 96%;
       margin: 0 auto;
     }
     
+    #menubar {
+      width: 100%;
+    }
+    
+    #toolbar {
+      width: 80px;
+      height: 100%;
+      position: absolute;
+      left: 100px;
+      top: 100px;
+    }
+    #toolbar ul {
+      margin: 0;
+      padding: 0;
+    }
+    #toolbar ul>li {
+      width: 100px;
+      list-style: none;
+      padding: 0;
+    }
+    
+    #position {
+      width: 80px;
+    }
+    
     #board {
+      width: 500px;
+      height: 600px;
+      margin: 0 auto;
       cursor: crosshair;
     }
-    
-    #colorDisplay {
-      width: 20px;
-      height: 20px;
-      border: 1px solid black;
+
+    #color {
+      width: 300px;
+      float: right;
+      position: absolute;
+      left: 800px;
+      top: 0px;
+      background-color: #f5f6f7;
+      text-align: center;
     }
-    
-    #rows,#cols {
-      width: 50px;
+    #txtColor {
+      width: 70px;
     }
-    
-    #format {
-      width: 800px;
-      height: 200px;
+    #selectedColorDisplay {
+      width: 40px;
+      height: 40px;
+      border: 1px solid #a0a0a0;
+      float: left;
+    }
+    #editColor {
+      float: right;
+      display: block;
+      right: 0px;
+      top: 50%;
+      position: absolute;
+      height: 40px;
+    }
+    #colorEditor {
+      width: 400px;
+      position: absolute;
+      right:0px;
+      top: 90px;
+      display:none;
+    }
+    #rgbaHex {
+      width: 80px;
+      font-size: 15px;
     }
   </style>
 </head>
 <body>
   <div id="page">
-    <div id="board"></div>
-    <span id="position">&nbsp;</span>
-    <!--
-    行: <input id="rows" type="text" value="" maxlength="3" />
-    列: <input id="cols" type="text" value="" maxlength="3" />
-    -->
-    <div id="colorPicker">
-    颜色: #RGBA
-     <input id="txtColor" type="text" maxlength="11" />
-     <div id="colorDisplay"></div>
+    <a href="https://github.com/hlpp/games/tree/master/web/dot" style="float:right">Project in Github</a>
+    <div id="menubar">
+        <button id="undo" disabled='disabled'>撤销</button>
+        <button id="redo" disabled='disabled'>重做</button>
+        <button id="copy" disabled='disabled'>复制</button>
+        <button id="cut" disabled='disabled'>剪切</button>
+        <button id="paste" disabled='disabled'>粘贴</button>
+        <button id="clear" disabled='disabled'>清除</button>
+        <button id="flipHorizontal" disabled='disabled'>水平翻转</button>
+        <button id="flipVertical" disabled='disabled'>垂直翻转</button>
+        
+        <span id="position">&nbsp;</span>
     </div>
-    
+    <div id="color">
+    颜色
+      <div id="selectedColorDisplay"></div>
+      <table id="colorTable"></table>
+      <button id="editColor">编辑</button>
+    </div>
+    <div id="toolbar">
+        工具:
+        <ul>
+            <li><input id="selector" type="checkbox"/><label for="selector">选择</label></li>
+            <li><input id="eraser" type="checkbox" /><label for="eraser">橡皮擦</label></li>
+            <li><input id="colorFiller" type="checkbox"/><label for="colorFiller">填充颜色</label></li>
+            <li><input id="toggleGridEnable" type="checkbox" checked="checked"/><label for="toggleGridEnable">显示网格</label></li>
+        </ul>
+    </div>
     <p>
-    <button id="undo" disabled='disabled'>撤销</button>
-    <button id="redo" disabled='disabled'>重做</button>
-    <button id="copy" disabled='disabled'>复制</button>
-    <button id="cut" disabled='disabled'>剪切</button>
-    <button id="paste" disabled='disabled'>粘贴</button>
-    <button id="clear" disabled='disabled'>清除</button>
+      图像格式:
+      <select id="selFormat">
+        <option value="default">默认</option>
+        <option value="columns">列</option>
+      </select>
+      <button id="save">保存</button>
+      <button id="open">打开</button>
     </p>
-    <p>
-    <button id="flipHorizontal" disabled='disabled'>水平翻转</button>
-    <button id="flipVertical" disabled='disabled'>垂直翻转</button>
-    </p>
-    工具:
-    <label for="selector">选择</label><input id="selector" type="checkbox"/>
-    <label for="eraser">橡皮擦</label><input id="eraser" type="checkbox" />
-    <label for="colorFiller">填充颜色</label><input id="colorFiller" type="checkbox"/>
-    <label for="toggleGridEnable">显示网格:</label><input id="toggleGridEnable" type="checkbox" checked="checked"/>
-  </div>
-  <div id="format">
-    图像格式:
-    <select id="selFormat">
-      <option value="default">默认</option>
-      <option value="columns">列</option>
-    </select>
-    <button id="save">保存</button>
-    <button id="open">打开</button>
+    <div id="board"></div>
+
+    <div id="colorEditor">
+      #<input id="rgbaHex" type="text" maxlength="11" />
+      <button id="addToCustomList">添加到自定义颜色</button>
+    </div>
   </div>
 <script src="../libs/jquery/jquery.min.js"></script>
 <script src="../libs/signals.min.js"></script>
 <script src="dot.js"></script>
-</html>
 </body>
+</html>
