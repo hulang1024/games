@@ -1,5 +1,5 @@
-# dot!
-简单画图工具。[在线](https://hlpp.github.io/games/web/dot/index.html)
+# Dot!
+简单画图工具。[在线](https://hlpp.github.io/games/web/dot/)
 
 ## 功能
 1. 撤销，重做，复制，剪切，粘贴

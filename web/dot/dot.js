@@ -88,7 +88,6 @@ SImage.prototype.readFromTextFile = function(file, callback) {
 var Signal = signals.Signal;
 
 function Board(params) {
-  var historyRecorder = params.historyRecorder;
   var board = this;
   var rowNum = params.rows;
   var colNum = params.cols;
@@ -208,6 +207,7 @@ function ColorSelector() {
   var nextIndex = 0;
   var COLOR_TABLE_ROWS = 3;
   var COLOR_TABLE_COLS = 10;
+  
   this.getRgbaIntArray = function() {
     return hexRgbaValue2IntArray(selectedRgba);
   }
@@ -238,6 +238,7 @@ function ColorSelector() {
      'fff200', '22b14c', '00a2e8', '3f48cc', 'a349a4'],
     ['ffffff', 'c3c3c3', 'b97a57', 'ffaec9', 'ffc90e',
      'efe4b0', 'b5e61d', '99d9ea', '7092be', 'c8bfe7']];
+     
   for (var r = 0; r < COLOR_TABLE_ROWS; r++) {
     tr = document.createElement('tr');
     for (var c = 0; c < COLOR_TABLE_COLS; c++) {
@@ -468,14 +469,11 @@ $(function() {
 
   window.board = new Board({
     rows: 24,
-    cols: 24,
-    historyRecorder: historyRecorder
+    cols: 24
   });
   
   historyRecorder.push(board.getSImage());
   
-  window.colorPicker = new ColorPicker();
-
   var selector = new Selector(board);
   var eraser = new Eraser();
   var colorFiller = new ColorFiller();
@@ -530,6 +528,7 @@ $(function() {
       $('#redo').prop('disabled', false);
     }
   }).prop('disabled', true);
+  
   $('#redo').click(function() {
     historyRecorder.redo();
     board.setSImage(historyRecorder.peek());
@@ -546,6 +545,7 @@ $(function() {
     board.setSImage(simage);
     historyRecorder.push(simage);
   }).prop('disabled', true);
+  
   $('#flipVertical').click(function() {
     var rect = selector.getRangeRect();
     var simage = board.getSImage();
@@ -558,6 +558,7 @@ $(function() {
     var srcRect = selector.getRangeRect();
     clipboard.copyRange(srcRect);
   }).prop('disabled', true);
+  
   $('#paste').click(function() {
     var destRect = selector.getRangeRect();
     var simage = board.getSImage();
@@ -565,6 +566,7 @@ $(function() {
     board.setSImage(simage);
     historyRecorder.push(simage);
   }).prop('disabled', true);
+  
   $('#cut').click(function() {
     var srcRect = selector.getRangeRect();
     clipboard.cutRange(srcRect);
@@ -591,6 +593,7 @@ $(function() {
     nowTool = this.checked ? eraser : null;
     $('#colorFiller,#selector').prop('checked', false);
   }).prop('checked', false);
+  
   $('#colorFiller').change(function() {
     nowTool = this.checked ? colorFiller : null;
     $('#eraser,#selector').prop('checked', false);
@@ -603,6 +606,7 @@ $(function() {
   $('#editColor').click(function() {
     $('#colorEditor').toggle(); 
   });
+  
   $('#addToCustomList').click(function() {
     colorSelector.add($('#rgbaHex').val());
   });
