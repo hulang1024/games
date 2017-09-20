@@ -623,6 +623,7 @@ $(function() {
         fileUpload = document.createElement('input');
         fileUpload.id = 'file';
         fileUpload.type = 'file';
+        $(fileUpload).hide();
         fileUpload.addEventListener('change', function() {
           var files = this.files;
           if(!files.length)
