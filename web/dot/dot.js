@@ -580,8 +580,10 @@ $(function() {
   
   $('#selector').change(function() {
     nowTool = this.checked ? selector : null;
-    if (!this.checked)
+    if (!this.checked) {
       selector.setRangeRect(false);
+      $('#copy,#cut,#paste,#clear,#flipHorizontal,#flipVertical').prop('disabled', true);
+    }
     $('#colorFiller,#eraser').prop('checked', false);
   }).prop('checked', false);
   
