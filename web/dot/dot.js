@@ -427,7 +427,7 @@ function flipVertical(rect, simage) {
 
 function HistoryRecorder() {
   var stack = [];
-  var top = 0;
+  var top = -1;
   
   this.signals = {
     pushed: new Signal()  
@@ -456,7 +456,7 @@ function HistoryRecorder() {
   }
   
   this.redo = function() {
-    if (top < stack.length - 1)
+    if (top <= stack.length - 1)
       top++;
   }
 }
@@ -471,6 +471,8 @@ $(function() {
     cols: 24,
     historyRecorder: historyRecorder
   });
+  
+  historyRecorder.push(board.getSImage());
   
   window.colorPicker = new ColorPicker();
 
@@ -496,12 +498,15 @@ $(function() {
       selector.onClick(event);
     } else if (nowTool instanceof Eraser) {
       $(cell).css('background-color', 'transparent');
+      historyRecorder.push(board.getSImage());
     } else if (nowTool instanceof ColorFiller) {
       var simage = board.getSImage();
       colorFiller.fill(colorSelector.getRgbaIntArray(), cell.position, simage);
       board.setSImage(simage);
+      historyRecorder.push(simage);
     } else {
       $(cell).css('background-color', colorSelector.getCode());
+      historyRecorder.push(board.getSImage());
     }
   });
 
@@ -513,20 +518,25 @@ $(function() {
   
   historyRecorder.signals.pushed.add(function(){
     $('#undo').prop('disabled', false);
+    $('#redo').prop('disabled', true);
   });
   
   $('#undo').click(function() {
     historyRecorder.undo();
     board.setSImage(historyRecorder.peek());
     $('#redo').prop('disabled', false);
-    if (historyRecorder.isBottom())
+    if (historyRecorder.isBottom()) {
       $(this).prop('disabled', true);
+      $('#redo').prop('disabled', false);
+    }
   }).prop('disabled', true);
   $('#redo').click(function() {
     historyRecorder.redo();
     board.setSImage(historyRecorder.peek());
-    if (historyRecorder.isTop())
+    if (historyRecorder.isTop()) {
       $(this).prop('disabled', true);
+      $('#undo').prop('disabled', false);
+    }
   }).prop('disabled', true);
   
   $('#flipHorizontal').click(function() {
@@ -534,12 +544,14 @@ $(function() {
     var simage = board.getSImage();
     flipHorizontal(rect, simage);
     board.setSImage(simage);
+    historyRecorder.push(simage);
   }).prop('disabled', true);
   $('#flipVertical').click(function() {
     var rect = selector.getRangeRect();
     var simage = board.getSImage();
     flipVertical(rect, simage);
     board.setSImage(simage);
+    historyRecorder.push(simage);
   }).prop('disabled', true);
   
   $('#copy').click(function() {
@@ -551,6 +563,7 @@ $(function() {
     var simage = board.getSImage();
     clipboard.pasteRange(destRect, simage);
     board.setSImage(simage);
+    historyRecorder.push(simage);
   }).prop('disabled', true);
   $('#cut').click(function() {
     var srcRect = selector.getRangeRect();
@@ -562,6 +575,7 @@ $(function() {
     var simage = board.getSImage();
     clearRange(rect, simage);
     board.setSImage(simage);
+    historyRecorder.push(simage);
   }).prop('disabled', true);
   
   $('#selector').change(function() {
@@ -604,7 +618,7 @@ $(function() {
       }).join('\n');
     };
     
-    var formatName = $('#selFormat').val();
+    var formatName = $('#selFormat').val() || 'default';
     var formatter = formatters[formatName];
     
     var simage = board.getSImage();
@@ -631,6 +645,7 @@ $(function() {
           var simage = new SImage();
           simage.readFromTextFile(files[0], function() {
             board.setSImage(simage);
+            historyRecorder.push(simage);
           });
         });
         document.body.appendChild(fileUpload);
