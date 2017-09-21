@@ -1,17 +1,13 @@
-/* 'rgba(1,2,3,4)' -> [1,2,3,4] */
-function rgbaValue2IntArray(str) {
-  var srgba = str.substring(
-    str.substring(0, 4) == 'rgba' ? 5 : 4,
-    str.length - 1);
-  var rgba = srgba.split(', ');
-  if (rgba.length == 3)
-    rgba.push(255);
-  return new Uint8Array([+rgba[0], +rgba[1], +rgba[2], +rgba[3]]);
+/* 'rgb(1,2,3)' -> [1,2,3] */
+function rgbValue2IntArray(str) {
+  var srgb = str.substring(4, str.length - 1);
+  var rgb = srgb.split(', ');
+  return new Uint8Array([+rgb[0], +rgb[1], +rgb[2]]);
 }
 
-/* 01020304 -> [1,2,3,4] */
-function hexRgbaValue2IntArray(str) {
-  var arr = new Uint8Array(str.length == 6 ? 3 : 4);
+/* 010203 -> [1,2,3] */
+function rgbHexValue2IntArray(str) {
+  var arr = new Uint8Array(3);
   for (var i = 0; i < str.length; ) {
     arr[i / 2] = parseInt(str.substring(i, i + 2), 16);
     i += 2;
@@ -20,9 +16,9 @@ function hexRgbaValue2IntArray(str) {
   return arr;
 }
 
-/* [1,2,3,4] -> 01020304 */
-function rgba2Hex(rgba) {
-  return rgba.reduce(function(s, n){
+/* [1,2,3] -> 010203 */
+function rgb2Hex(rgb) {
+  return rgb.reduce(function(s, n){
     var v = (+n).toString(16);
     return s + (v == 0 ? '00' : v.length == 2 ? v : '0' + v);
   }, '');
@@ -49,7 +45,7 @@ function reverseRange(array, begin, end) {
 function SImage() {
     this.width = 0;
     this.height = 0;
-    /* [[r,g,b,a],...] */
+    /* [[r,g,b],...] */
     this.data = []; 
 }
 
@@ -60,7 +56,7 @@ SImage.prototype.writeTextFile = function() {
   
   var len = this.data.length;
   this.data.forEach(function(rgba, index) {
-    text += rgba2Hex(rgba);
+    text += rgb2Hex(rgba);
     if (index < len - 1)
       text += ',';    
   });
@@ -77,7 +73,7 @@ SImage.prototype.readFromTextFile = function(file, callback) {
     simage.height = + ints.shift();
     
     ints.forEach(function(sn) {
-      simage.data.push( hexRgbaValue2IntArray(sn) );
+      simage.data.push( rgbHexValue2IntArray(sn) );
     });
     
     callback();
@@ -126,7 +122,7 @@ function Board(params) {
     var data = [];
     for (var r = 0, rows = board.table.rows; r < rows.length; r++) {
       for (var c = 0, len = rows[r].cells.length; c < len; c++) {
-        data.push( rgbaValue2IntArray( $(rows[r].cells[c]).css('background-color') ) );
+        data.push( rgbValue2IntArray( $(rows[r].cells[c]).css('background-color') ) );
       }
     }
     
@@ -144,7 +140,7 @@ function Board(params) {
     for (var i = 0, len = data.length; i < len; i++) {
       var r = Math.floor(i / simage.width);
       var c = i % simage.width;
-      $(rows[r].cells[c]).css('background-color', '#' + rgba2Hex(data[i]));
+      $(rows[r].cells[c]).css('background-color', '#' + rgb2Hex(data[i]));
     }
   }
   
@@ -203,20 +199,20 @@ function Board(params) {
 
 
 function ColorSelector() {
-  var selectedRgba = '000000';
+  var selectedRgb = '000000';
   var nextIndex = 0;
   var COLOR_TABLE_ROWS = 3;
   var COLOR_TABLE_COLS = 10;
   
-  this.getRgbaIntArray = function() {
-    return hexRgbaValue2IntArray(selectedRgba);
+  this.getRgbIntArray = function() {
+    return rgbHexValue2IntArray(selectedRgb);
   }
   
   this.getCode = function() {
-    return '#' + selectedRgba;
+    return '#' + selectedRgb;
   }
   
-  this.add = function(rgba) {
+  this.add = function(rgb) {
     if (nextIndex == COLOR_TABLE_COLS) {
       for (var i = 0; i < COLOR_TABLE_COLS-1; i++)
         $(table.rows[2].cells[i]).css('background-color',
@@ -225,15 +221,15 @@ function ColorSelector() {
     }
     var cell = table.rows[2].cells[nextIndex];
     cell.enabled = true;
-    cell.rgba = rgba;
-    $(cell).css('background-color', '#' + rgba);
+    cell.rgb = rgb;
+    $(cell).css('background-color', '#' + rgb);
     nextIndex++;
   }
   
   var table = $('#colorTable').get(0);
   var tr, td;
   var cellSize = 20;
-  var rgbas = [
+  var rgbs = [
     ['000000', '7f7f7f', '880015', 'ed1c24', 'ff7f27',
      'fff200', '22b14c', '00a2e8', '3f48cc', 'a349a4'],
     ['ffffff', 'c3c3c3', 'b97a57', 'ffaec9', 'ffc90e',
@@ -243,16 +239,16 @@ function ColorSelector() {
     tr = document.createElement('tr');
     for (var c = 0; c < COLOR_TABLE_COLS; c++) {
       td = document.createElement('td');
-      td.rgba = (r < 2 ? rgbas[r][c] : 'f5f6f7');
+      td.rgb = (r < 2 ? rgbs[r][c] : 'f5f6f7');
       td.enabled = r < 2;
       td.onclick = function() {
         if (!this.enabled)
           return;
-        selectedRgba = this.rgba;
-        $('#selectedColorDisplay').css('background-color', '#' + selectedRgba);
+        selectedRgb = this.rgb;
+        $('#selectedColorDisplay').css('background-color', '#' + selectedRgb);
       };
       td.onmouseover = function() {
-        $(this).css('outline', '1px solid #' + this.rgba);
+        $(this).css('outline', '1px solid #' + this.rgb);
       };
       td.onmouseout = function() {
         $(this).css('outline', '');
@@ -260,7 +256,7 @@ function ColorSelector() {
       $(td).css({
         width: (cellSize - 4) + 'px',
         height: (cellSize - 4) + 'px',
-        backgroundColor: '#' + td.rgba,
+        backgroundColor: '#' + td.rgb,
         padding: 0,
         border: '1px solid #a0a0a0'
       });
@@ -270,7 +266,7 @@ function ColorSelector() {
     table.appendChild(tr);
   }
   
-  $('#selectedColorDisplay').css('background-color', '#' + selectedRgba);
+  $('#selectedColorDisplay').css('background-color', '#' + selectedRgb);
 }
 
 function ColorPicker() {
@@ -296,8 +292,8 @@ function ColorFiller() {
     }
   }
   
-  function isFillable(rgba) {
-    return rgba[3] == 0 || rgba.reduce(function(s, n){ return s + n; }, 0) >= 765;
+  function isFillable(rgb) {
+    return rgb.reduce(function(s, n){ return s + n; }, 0) >= 765;
   }
 }
 
@@ -499,7 +495,7 @@ $(function() {
       historyRecorder.push(board.getSImage());
     } else if (nowTool instanceof ColorFiller) {
       var simage = board.getSImage();
-      colorFiller.fill(colorSelector.getRgbaIntArray(), cell.position, simage);
+      colorFiller.fill(colorSelector.getRgbIntArray(), cell.position, simage);
       board.setSImage(simage);
       historyRecorder.push(simage);
     } else {
@@ -608,7 +604,7 @@ $(function() {
   });
   
   $('#addToCustomList').click(function() {
-    colorSelector.add($('#rgbaHex').val());
+    colorSelector.add($('#rgbHex').val());
   });
 
   $('#save').click(function(){
@@ -619,8 +615,8 @@ $(function() {
     };
   
     formatters['columns'] = function(simage) {
-      return simage.data.map(function(rgba) {
-        return rgba.join(',');
+      return simage.data.map(function(rgb) {
+        return rgb.join(',');
       }).join('\n');
     };
     
