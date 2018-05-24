@@ -107,22 +107,6 @@
 </div>
 
 <div id="gameplay" class="screen" style="display:none">
-	<div id="scoring">00000000</div>
-	<div class="barprogress">
-	<div id="progress" style="width:0%;height:100%;background-color:#886600;opacity:0.3"></div>
-	</div>
-	<div id="accuracy">100.00%</div>
-	<div id="withMods"></div>
-	<div id="divCombo" style="position:absolute;bottom: 5px;left:5px;width:200px;font-size:50px;color:white"></div>
-  
-	<div id="keyOverlay">
-		<div name="k1">K1</div>
-		<div name="k2">K2</div>
-		<div name="m1">M1</div>
-		<div name="m2">M2</div>
-	</div>
-	<!--<button id="btnChangePlaybackSpeed">Speed x1.0</button>-->
-	
 	<div id="gamefield"></div>
 	<div id="skip"></div>
 	<div id="gamefieldMenu" style="display:none">
@@ -130,6 +114,22 @@
 		<button class="menuItem" id="btnBack" style="width:100%; height:60px;">返回</button>
 		<!--<button id="btnRetry">重来</button>-->
 	</div>
+
+	<div id="scoring">00000000</div>
+	<div class="barprogress">
+	<div id="progress" style="width:0%;height:100%;background-color:#886600;opacity:0.3"></div>
+	</div>
+	<div id="accuracy">100.00%</div>
+	<div id="withMods"></div>
+	<div id="divCombo" style="position:absolute;bottom: 5px;left:5px;width:200px;font-size:50px;color:white"></div>
+
+	<div id="keyOverlay">
+		<div name="k1">K1</div>
+		<div name="k2">K2</div>
+		<div name="m1">M1</div>
+		<div name="m2">M2</div>
+	</div>
+	<!--<button id="btnChangePlaybackSpeed">Speed x1.0</button>-->
 </div>
 
 <div id="grades" class="screen" style="display:none;">
@@ -159,7 +159,7 @@
 	<h1>设定</h1>
 	<p style="font-size:15px;text-align:center;color:#ca6579;">改变 osu! 的设置</p>
 
-	<h2>画面</h2> 
+	<h2>画面</h2>
 	<p class="h3">渲染器</p>
 	<p title="如果卡帧,请降低设置为60fps"><span>帧数限制：</span>
 		<select id="fps">
@@ -177,11 +177,11 @@
 	<h2>音频</h2>
 	<p class="h3">音量</p>
 	<p><label for="masterVolume">整体：</label>
-		<input id="masterVolume" type="text" value="0" style="height:width:8px;"/></p>
+		<input id="masterVolume" type="range" min=0 max=100 value="0" /></p>
 	<p><label for="musicVolume">音乐：</label>
-		<input id="musicVolume" type="text" value="0" style="width:8px;"/></p>
+		<input id="musicVolume" type="range"  min=0 max=100 value="0" /></p>
 	<p><label for="effectVolume">音效：</label>
-		<input id="effectVolume" type="text" value="0" style="width:8px;"/></p>
+		<input id="effectVolume" type="range"  min=0 max=100 value="0" /></p>
 
 	<h2>输入</h2>
 	<p class="h3">鼠标</p>
@@ -197,11 +197,15 @@
 	<p><span>当前皮肤：</span>
 		<select id="skins">
 		</select></p>
+	<p>
+		<span>背景暗化：</span>
+		<input id="dim" type="range" min="0" max="100" />
+	</p>
 	<p title="光标会根据选择谱面难度的CS(物件大小)进行调整"><label for="enableAutoCursorSizing">
 		<input id="enableAutoCursorSizing" type="checkbox" checked="checked">
 			<span>自动缩放光标</span>
 	</label></p>
-	<button name="back">< 返回</button>
+	<button name="back">返回</button>
 </div>
 
 <div id="keySettings" class="screen" style="display:none;">
@@ -224,7 +228,7 @@
 		<h2 style="text-align:center;">提示：请注意避免按键冲突！</h2>
 	</div>
 
-	<button name="back" onclick="backOptionsFromKeySettings()">< 返回</button>
+	<button name="back" onclick="backOptionsFromKeySettings()">返回</button>
 </div>
 
 <div id="modSelection" class="screen" style="display:none;">
@@ -343,4 +347,4 @@
 <script src="js/VolumeControl.js"></script>
 <script src="js/osu!.js"></script>
 </body>
-</html> 
+</html>

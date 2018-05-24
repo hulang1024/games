@@ -2,6 +2,7 @@ var settings = {
 	version: 1,
 	skinName: 'Default',
 	enableAutoCursorSizing: true,
+	dimValue: 10,
 	keyoverlayEnabled: true,
 	mouseKeyInGameplayingDisabled: false,
 	keyBinds: {LeftClick: 90/*Z*/, RightClick: 88/*X*/},
@@ -15,7 +16,7 @@ var settings = {
 
 function ConfigManager() {
 	this.configStore = {};
-	
+
 	this.set = function(key, value){
 		//this.configStore[key] = value;
 	}
@@ -23,11 +24,11 @@ function ConfigManager() {
 	this.get = function(key) {
 		//return this.configStore[key];
 	}
-		
+
 	this.save = function() {
 		localStorage.osu_player_cfg = JSON.stringify(settings);
 	}
-	
+
 	this.initDefaults = function () {
 		/*
 		this.set('VolumeMaster', 100);
@@ -40,7 +41,7 @@ function ConfigManager() {
 		this.set('limitFPS', 0);
 		this.set('KeyOverlay', true);*/
 	}
-	
+
 	this.load = function() {
 		if(localStorage.osu_player_cfg) {
 			var obj = JSON.parse(localStorage.osu_player_cfg);
@@ -55,7 +56,7 @@ function ConfigManager() {
 		}
 	}
 
-	
+
 	this.initDefaults();
 	this.load();
 }

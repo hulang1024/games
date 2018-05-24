@@ -16,7 +16,7 @@ function MainMenu() {
 		playButton.hide();
 		settingsButton.hide();
 		exitButton.hide();
-		$('#solo').show();
+		$('#solo').fadeIn();
 		menuLevel = 0;
 		nowScreen = 'solo';
 
@@ -48,11 +48,11 @@ function MainMenu() {
 		if(menuLevel <= 1) {
 			playUIEffectSound('menuclick');
 			timer = setTimeout(function(){
-				playButton.hide();
-				settingsButton.hide();
-				exitButton.hide();
+				playButton.fadeOut();
+				settingsButton.fadeOut();
+				exitButton.fadeOut();
 				menuLevel--;
-			}, 10000);
+			}, 5000);
 		} else {
 			playButton.click();
 			menuLevel = 0;

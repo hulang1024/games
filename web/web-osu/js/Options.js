@@ -1,18 +1,18 @@
 function Options() {
 	var self = this;
 	this.poppedOut = false;
-	
+
 	this.popOut = function(b) {
 		if(b != undefined) {
 			this.poppedOut = !b;
 		}
 		if(this.poppedOut) {
-			$('#options').stop().animate({width:'0px', opacity:0.0}, 300, 'easeOut', function(){
-				$(this).css({background: 'rgba(0,0,0,0.0)', opacity: 0}).hide();
+			$('#options').stop().animate({width:'0px'}, 300, 'easeOut', function(){
+				$(this).hide();
 			});
 		} else {
-			$('#options').stop().show().animate({width:'380px', opacity:0.5}, 300, 'easeOut', function(){
-				$(this).css({background: 'rgba(0,0,0,0.5)', opacity: 1}).show();
+			$('#options').stop().show().animate({width:'380px'}, 300, 'easeOut', function(){
+				$(this).show();
 			});
 		}
 		this.poppedOut = !this.poppedOut;
@@ -41,6 +41,7 @@ function Options() {
 		getElement('#options #fps>[value="' + settings.limitFPS + '"]').selected = true;
 		getElement('#options #skins>[value="' + settings.skinName + '"]').selected = true;
 		getElement('#options #enableAutoCursorSizing').checked = settings.enableAutoCursorSizing;
+		getElement('#options #dim').value = settings.dimValue;
 		getElement('#options #disableBackground').checked = settings.bgDisabled;
 		getElement('#options #enableKeyoverlay').checked = settings.keyoverlayEnabled;
 		getElement('#options #disableMouseKeyInGameplaying').checked = settings.mouseKeyInGameplayingDisabled;
@@ -82,7 +83,12 @@ function Options() {
 		config.save();
 	});
 	$('#options #enableAutoCursorSizing').change(function(){
-		settings.enableAutoCursorSizing = this.enableAutoCursorSizing;
+		settings.enableAutoCursorSizing = this.checked;
+		config.save();
+	});
+
+	$('#options #dim').change(function(){
+		settings.dimValue = this.value;
 		config.save();
 	});
 }

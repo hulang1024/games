@@ -15,12 +15,49 @@ body {
 	font-family: 'Segoe UI','微软雅黑';
 }
 
+button {
+	outline: none;
+}
+
+table {
+	outline: none;
+}
+
+select {
+	outline: none;
+}
+
+
+
+/* 滚动条 */
+::-webkit-scrollbar {/*滚动条整体样式*/
+    width: 7px;     /*高宽分别对应横竖滚动条的尺寸*/
+    height: 7px;
+}
+::-webkit-scrollbar-thumb {/*滚动条里面小方块*/
+    border-radius: 2px;
+    background-color: #cbcbcb;
+    background-image:
+        -webkit-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%,
+            transparent 25%,
+            transparent 50%, rgba(255, 255, 255, .2) 50%,
+            rgba(255, 255, 255, .2) 75%,
+            transparent 75%, transparent);
+}
+::-webkit-scrollbar-track {/*滚动条里面轨道*/
+    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+    background: transparent;
+}
+
 .screen{
 	position: absolute;
 	top:0px;
 	left:0px;
 	width: 100%;
 	height: 100%;
+	background-size: cover;
+  background-position:center center;
+	background-repeat: no-repeat;
 }
 #loading {
    width: 32px;
@@ -39,6 +76,8 @@ body {
 	position:absolute;
 	background-image: url('../app/logo.png');
 	background-size:contain;
+	border-radius: 100%;
+	box-shadow: 0 0 50px rgba(0,0,0,0.1);
 }
 
 #menu { color: white;}
@@ -54,7 +93,13 @@ body {
     border-radius: 5px;
 	font-family: '微软雅黑';
 	background-color:#6a4fba;
+	box-shadow: 1px 1px 30px rgba(0,0,0,0.4);
 }
+#menu>button:hover {
+	width: 420px;
+}
+
+
 #playerNowplaying{
 	position:absolute;
 	top: 0px;
@@ -74,7 +119,7 @@ body {
 	text-align: center;
 	font-size:16px;
 	margin-left: 0px;
-	/*border-radius: 16px;*/
+	border-radius: 2px;
 	font-family: inherit;
 	background-color: black;
 	border-width: 0;
@@ -86,16 +131,17 @@ body {
 	top: 0px;
 	left:0px;
 	width: 0;
-	height:100%; 
+	height:100%;
+padding: 0 10px 0 10px;
 	overflow-x:hidden;
 	overflow-y:auto;
-    background: black;
+    background: rgba(0,0,0,0.5);
     color: white;
-	opacity:0.5;
 	white-space: nowrap;
-	padding-right:10px;
+
 	display:none;
 	font-size:16px;
+ box-shadow:1px 1px 10px rgba(0,0,0,1);
 }
 #options h1{
 	font-size:20px;
@@ -103,12 +149,11 @@ body {
 	text-align:center;
 }
 #options h2{
-	font-size:24px;
+	font-size:22px;
 	font-weight:normal;
 	text-align:right;
 	color:#58d9fd;
-	/*margin-bottom:10px;
-	margin-right:10px;*/
+	margin-bottom:2px;
 }
 #options .h3{
 	font-size:15px;
@@ -116,7 +161,7 @@ body {
 	color:white;
 }
 #options p{
-	line-height:20px;
+	line-height:28px;
 	font-size:15px;
 	color:white;
 }
@@ -130,15 +175,14 @@ body {
 	font-family: '微软雅黑';
 }
 #options input {
-    background-color: rgba(0,0,0,0.4);
-	opacity:1;
-    border: none;
-    color: white;
+  background-color: rgba(0,0,0,0.4);
+  border: none;
+  color: white;
 	width:295px;
 }
+
 #options select {
 	background-color: rgba(0,0,0,0.4);
-	opacity:1;
 	width:295px;
 	height:24px;
 	border:none;
@@ -146,7 +190,6 @@ body {
 }
 #options select option {
 	background-color: rgba(0,0,0,0.4);
-	opacity:1;
 }
 #options input[type=checkbox] {
 	width:18px;
@@ -156,7 +199,7 @@ body {
 	height:18px;
 }
 #options button[name=back], #keySettings button[name=back] {
-	position: fixed;
+	position: absolute;
 	left: 0px;
 	bottom: 3px;
 	background-color:#ec3596;
@@ -190,6 +233,7 @@ body {
 #gameplay{
 	background-color:black;
 }
+
 #gameplay button{
 	width: 200px;
 	height: 50px;
@@ -201,10 +245,12 @@ body {
 	margin:0 auto;
 	position: absolute;
 }
+
 #gameplay #scoring {
 	float:right;
-	position:relative;
-	left: -8px;
+	position: absolute;
+	right: 20px;
+	top: 2px;
 	height: 40px;
 	line-height: 40px;
 	color: white;
@@ -212,17 +258,17 @@ body {
 }
 #gameplay .barprogress{
 	float:right;
-	position: relative;
+	position: absolute;
+	right: 20px;
 	top: 40px;
-	left: 170px;
 	width:200px;
 	height:4px;
 }
 #gameplay>#accuracy{
 	float:right;
-	position: relative;
+	position: absolute;
+	right: 20px;
 	top: 40px;
-	left: 370px;
 	height: 24px;
 	line-height: 24px;
 	color: white;
@@ -355,15 +401,13 @@ body {
 
 
 #solo {
-	background-color:black;
 }
 #rankingTypeSelect{
 	position: relative;
 	top: 16px;
 	width:240px;
-	background-color: black;
+	background-color: transparent;
 	color: white;
-	border: 1px solid lightblue;
 }
 #netContent{
     display: block;
@@ -452,23 +496,24 @@ body {
 	background-color: transparent;
 }
 #songSelectColl>select>option{
-	height:70px;
+	height:64px;
 	width: 100%;
+  margin-top: 3px;
+  padding: 6px 0 0 6px;
 	font-size: 20px;
-    color: white;
-	background-color: rgba(63, 125, 209,0.9);
-    border: 1px solid gray;
-    margin-top: 1px;
-	border-radius: 1px;
+  color: white;
+	border-radius: 4px;
+	border: 1px solid rgba(0,0,0,0.2);
+	box-shadow: 0 0 2px rgba(0,0,0,0.6);
+  background: rgba(255,255,255,0.5)
 }
 
 #songDesc{
 	width:100%;
 	height: 150px;
-	background-color: black;
+	background-color: rgba(0,0,0,0.7);
 }
 #songDesc>p{
-	background-color: black;
 	color: white;
 	margin: 0;
 }
@@ -575,7 +620,7 @@ body {
     background-repeat: no-repeat;
 }
 #modSelection {
-	background-color:black;
+  background-color: rgba(0,0,0,0.3);
 	margin:0 auto;
 	width:100%;
 	height:100%;
@@ -598,7 +643,7 @@ body {
 }
 #modSelection #modSelectionMenu{
 	position: relative;
-	top:248px;
+	top:400px;
 	width:600px;
 	margin:0 auto;
 }
@@ -614,5 +659,10 @@ body {
 	border-width: 0;
 	border-radius: 2px;
 	text-align: center;
-	color:white;
+	color:black;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+	outline: none;
+}
+.menuItem:hover {
+  box-shadow: 0 0 10px rgba(255,255,255,0.5);
 }

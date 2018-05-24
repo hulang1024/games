@@ -151,7 +151,7 @@ function HitObject() {
 	this.startTime = 0;
 	this.endTime = 0;
 	this.length = function() { return this.endTime - this.startTime; };
-	
+
 	//物件类型
 	this.type = 0;
 	//游戏区域中打击物件的位置
@@ -270,7 +270,7 @@ function AutoPlayer() {
 	      lastTime = hitObjects[j].startTime;
 	      j++;
 	    }
-	    
+
 	    if(j - i > 1) {
 	      k = 2;
 	      for(; i < hitObjects.length  && i < j; i++) {
@@ -406,7 +406,7 @@ function AutoPlayer() {
 				}
 			}
 			sliderRepeat++;
-		} 
+		}
 	}
 
 	function drawSpinnerMove(hitObject, offsetTime) {
@@ -422,7 +422,7 @@ function AutoPlayer() {
 			snDiffTime = null;
 			if(withMods.autoplay) {
 				cursorEl.style.transform = '';
-				cursorEl.style.transformOrigin = ''; 
+				cursorEl.style.transformOrigin = '';
 				if(skinConfig.general.cursorExpand) {
 					cursorCrEl.transform = '';
 					cursorCrEl.style.transform = cursorCrEl.transform;
@@ -549,7 +549,7 @@ function Replayer() {
 			break;
 		}
 		mousePos.x = replayArray[index][1] * (gamefieldW / gridW);
-		mousePos.y = replayArray[index][2] * (gamefieldH / gridH);		
+		mousePos.y = replayArray[index][2] * (gamefieldH / gridH);
 		cursorEl.style.left = (mousePos.x- cursorR) + 'px';
 		cursorEl.style.top = (mousePos.y - cursorR) + 'px';
 	}
@@ -630,7 +630,7 @@ function initModsEventHandler() {
 		selectMod(this);
 		selectMod(getElement('#easy'));
 	};
-	
+
 	getElement('#halfTime').onchange = function() {
 		if(!devMode) return;
 		withMods.halfTime = this.checked;
@@ -732,19 +732,6 @@ var inited = false;
 function init() {
 	if(inited) return;
 	showLoading(false);
-	if(window.opener == null) {
-		var left = (window.screen.width - resolution.width) / 2;
-		var top  = (window.screen.height - resolution.height - (window.screen.height-document.body.scrollHeight) / 2) / 2;
-		window.childWin = window.open(location.href,
-		'target=_top','location=no,menubar=no,resizable=no,scrollbars=no,status=no,titlebar=no,toolbar=no,width='+resolution.width+',height='+resolution.height+',left=' + left + ',' + 'top=' + top,false);
-		if(window.childWin != null) {
-			childWin.focus();
-		} else {
-			alert('osu窗口被拦截啦！请设置允许,然后刷新:)');
-		}
-		
-		return;
-	}
 
 	divKeyOverlayArray = getElement('#gameplay #keyOverlay>div', true);
 	progress = getElement('#gameplay #progress');
@@ -832,7 +819,7 @@ function init() {
 							}
 						} else if(nowScreen == 'keySettings'){
 							backOptionsFromKeySettings();
-						} 
+						}
 						break;
 				case 32://space
 					if(skiping) {
@@ -917,7 +904,7 @@ function init() {
 						replayer.putAction(6 + (whichKeyIndex - 3));
 					inputKeyOverlayer.count(whichKeyIndex);
 					inputKeyOverlayer.down(whichKeyIndex);
-					
+
 				}
 				if(!(withMods.autoplay || withMods.relax)) {
 					mousePosOnHitTime = mousePos;
@@ -973,7 +960,7 @@ function initGame(){
 	  songSelect.options[randInt(0, Beatmaps.length)].onclick();
 	  isSystemSelect = false;
 	};
-	
+
 	btnStart = getElement('#btnStart');
 	btnStart.onmouseover = function() { this.style.transform = 'scale(1.2)'; };
 	btnStart.onmouseout = function() { this.style.transform = 'scale(1)'; };
@@ -1037,7 +1024,7 @@ function initGame(){
 	getElement('#songSelectOp [name="sort"]').onchange = function(){
 		if(Beatmaps.length == 0) return;
 		switch(this.value) {
-			case 'artist': 
+			case 'artist':
 				Beatmaps.sort(function(m1, m2){
 					return m1.metadata.artist.charCodeAt(0) - m2.metadata.artist.charCodeAt(0);
 				});
@@ -1077,7 +1064,7 @@ function initGame(){
 		}
 		refreshSongSelect();
 	};
-	
+
 	//auto auto
 	if(!withMods.autoplay)
 		getElement('#autoplay').click();
@@ -1092,7 +1079,7 @@ function refreshSongSelect() {
 		var option = document.createElement('option');
 		option.value = i;
 		var metadata = Beatmaps[i].metadata;
-		option.text = metadata.title + "   |" 
+		option.text = metadata.title + "   |"
 			+ metadata.artist + ' //' + metadata.creator + "|"
 			+ metadata.version;
 		option.onclick = function(){
@@ -1105,7 +1092,7 @@ function refreshSongSelect() {
 				}
 				return false;
 			}
-			
+
 			this.selected = true;
 			nowSelectedIndex = this.index;
 			selectedBeatmap = Beatmaps[nowSelectedIndex];
@@ -1128,7 +1115,7 @@ function refreshSongSelect() {
 function initMusicAudioEvent() {
 	musicAudio.ontimeupdate = function() {
 	    if(pause || !gameplaying) return;
-	    
+
 		var currentTime = musicAudio.currentTime;
 		//console.log('currentTime', currentTime)
 		if(s2ms(currentTime) >= hitObjects[0].startTime - approachRateMS) {
@@ -1137,7 +1124,7 @@ function initMusicAudioEvent() {
 		}
 		progress.style.width = (s2ms(currentTime) / hitObjects[hitObjects.length - 1].startTime * 100).toFixed(2) + '%';
 	};
-	
+
 	musicAudio.onplay = function(){
 	  if(pause || !gameplaying) return;
 	};
@@ -1394,7 +1381,7 @@ function calc() {
 		hitObject.position.x = parseInt(array[0]);
 		hitObject.position.y = parseInt(array[1]);
 		hitObject.startTime = parseInt(array[2]);
-	
+
 		/*
 		物品类型
 		整除16，结果为跳过新颜色数量，
@@ -1442,7 +1429,7 @@ function calc() {
 		hitObject.soundType = [];
 		hitObject.soundTypeFilenames = [];
 		hitObject.soundTypeFilepaths = [];
-		
+
 		hitObject.soundType.push('hitnormal');
 		var objPrefix;
 		if(hitObject.type == 1) {
@@ -1451,7 +1438,7 @@ function calc() {
 			objPrefix = 'slider';
 		} else if(hitObject.type == 8){
 		}
-		
+
 		if([1,3,5,7].indexOf(soundType) > -1)
 			hitObject.soundType.push(objPrefix + 'whistle');
 		if([2,3,6,7].indexOf(soundType) > -1)
@@ -1500,7 +1487,7 @@ function calc() {
 	});
 	hitObjects[0].newCombo = true;
 	hitObjects[hitObjects.length - 1].lastInCombo = true;
-	
+
 	for(var i = 0; i < hitObjects.length; i++) {
 		//处理叠放次序，时间点靠前的放在最上，靠后的放在最下
 		hitObjects[i].stackIndex = hitObjects.length * 5 - i * 5 - 1;
@@ -1540,7 +1527,7 @@ function calc() {
 
   var bpmInfo = '?';
  	var bpms = timingPoints.filter(function(p){ return p.inherited; }).map(function(p){ return p.bpm; }).sort(function(a,b) { return a-b; });
- 	if(bpms.length > 0) { 
+ 	if(bpms.length > 0) {
  		var minBPM = Math.floor(bpms[0]), maxBPM = Math.floor(bpms.lastValue());
  		bpmInfo = minBPM == maxBPM ? maxBPM : minBPM + '-' + maxBPM + ' (' + maxBPM +')';
  	} else if(bpms.length == 0){
@@ -1932,6 +1919,7 @@ function initGameplayUI() {
 	showLoading();
 	getElement('#skip').style.display = 'none';
 	getElement('#gamefieldMenu').style.display = 'none';
+	getElement('#gamefield').style.backgroundColor = 'rgba(0,0,0,' + (settings.dimValue / 100)  +')';
 	document.title = 'osu!\t\t- ' + getSongNormalTitle(selectedBeatmap);
 	progress.style.width = '0%';
 
@@ -1957,12 +1945,12 @@ function start() {
 
 	if(settings.limitFPS == 0) {
 		if(withMods.autoplay || replayMode) {
-			fpsMode = 61;	
+			fpsMode = 61;
 		} else {
 			fpsMode = 60;
 		}
 	} else {
-		fpsMode = settings.limitFPS;	
+		fpsMode = settings.limitFPS;
 	}
 
 	if(!replayMode) {
@@ -1982,7 +1970,7 @@ function start() {
 			}
 		}
 	}
-	
+
 
 	calc();
 	modCalc();
@@ -2063,7 +2051,7 @@ function gameplayEnd() {
 		if(withModNs.length > 0) {
 			selectedScoreDetails.withMods = withModNs.concat();
 		}
-		
+
 		if(!withMods.autoplay) {
 			if(!scoresDB[selectedBeatmap.metadata.beatmapID]) {
 				scoresDB[selectedBeatmap.metadata.beatmapID] = [];
@@ -2097,7 +2085,7 @@ function showRanking(beatmap) {
 		rankingSelect = getElement('#ranking>select');
 		rankingSelect.innerHTML = '';
 		rankingSelect.size = Math.max(2, Math.min(scores.length, Math.floor((windowHeight - 250) / 44)));
-		
+
 		getElement('#ranking').style.width = Math.min(windowWidth - 700 - 40, 360) + 'px';
 		getElement('#ranking').style.height = rankingSelect.size * 44 + 4 + 'px';
 		getElement('#ranking').style.display = 'block';
@@ -2244,7 +2232,7 @@ function drawHitScore(offsetTime) {
 			hitScoreEl.className = 'hitScore';
 			hitScoreEl.style.cursor = overallCursorStyle;
 			hitScoreEl.style.zIndex = hitScore.srcHitObject.stackIndex - 1;
-			
+
 			var srcHitObject = hitScore.srcHitObject;
 			var position = srcHitObject.position;
 			if(srcHitObject.type == 2) {
@@ -2499,7 +2487,7 @@ function draw(offsetTime) {
 					var imageUrls = [], imagePoss = [], imageSizes = [];
 					for(var i = 0; i < digits.length; i++) {
 						imageUrls.push(imageDataTable[skinConfig.fonts.hitCirclePrefix + '-' + digits[i]].url);
-						
+
 						//var size = fontHitCirclePxSizes[digits[i]];
 						//var fontHeight = size.height + (fontWidth / (size.width / size.height) - size.height);
 						var fontHeight = fontWidth;
@@ -2634,7 +2622,7 @@ function draw(offsetTime) {
 					}
 					var sdiffTime = hitObject.segmentTimeLength -
 						(hitObject.startTime + hitObject.segmentTimeLength * hitObject.ssliderRepeat - /*offsetTime*/(offsetTime + Math.floor(new Date().getTime() - callTime)));
-					
+
 					var revPoint, dx, dy, dxr, dyr;
 					if(hitObject.ssliderRepeat % 2 != 0) {
 						dx = Math.floor(hitObject.nodePos.lastValue().x - hitObject.position.x);
@@ -2662,7 +2650,7 @@ function draw(offsetTime) {
 						sliderBall.style.top = gamefieldCenterBaseY + (revPoint.y + dy - circleRadius - BorderWidth / 2) + 'px';
 					}
 					sliderBall.frames++;
-					
+
 					if(sdiffTime >= hitObject.segmentTimeLength) {
 						if(hitObject.repeat > 1) {
 							if(hitObject.repeat > 2) {
@@ -2675,7 +2663,7 @@ function draw(offsetTime) {
 									pointer1.style.opacity = 0;
 								}
 						}
-						
+
 						if(hitObject.ssliderRepeat == hitObject.repeat) {
 							removeSliderElements(hitObject);
 						}
@@ -2683,7 +2671,7 @@ function draw(offsetTime) {
 							sliderBall.rotateDeg += 180;
 							sliderBall.style.transform = 'rotate(' + sliderBall.rotateDeg + 'deg)';
 						}
-						
+
 						judgementEndSlide(revPoint.x + dx, revPoint.y + dy);
 						hitObject.ssliderRepeat++;
 					}
@@ -2812,7 +2800,7 @@ function loadGameBasicResources(callback) {
 	var mp3Filenames = ["applause"];
 	var pngFilenames = [
 		"cursor", "cursormiddle",
-		"play-skip", "menu-back", 
+		"play-skip", "menu-back",
 		"selection-mods", "selection-random",
 		"selection-mods-over", "selection-random-over",
 		"selection-mod-easy", "selection-mod-nofail", "selection-mod-halftime",
@@ -2953,7 +2941,7 @@ function loadResources(requestList, allLoadedCallback) {
       audio.filepath = req.filepath;
     }
   }
-  
+
   function bindLoadEvent(resObj, eventName) {
     if(! allLoadedCallback) return;
     resObj['on' + eventName] = function() {
