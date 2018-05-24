@@ -249,7 +249,7 @@ padding: 0 10px 0 10px;
 #gameplay #scoring {
 	float:right;
 	position: absolute;
-	right: 20px;
+	right: 10px;
 	top: 2px;
 	height: 40px;
 	line-height: 40px;
@@ -259,7 +259,7 @@ padding: 0 10px 0 10px;
 #gameplay .barprogress{
 	float:right;
 	position: absolute;
-	right: 20px;
+	right: 10px;
 	top: 40px;
 	width:200px;
 	height:4px;
@@ -289,6 +289,9 @@ padding: 0 10px 0 10px;
 	margin: 0 auto;
 	font-size: 30px;
 	opacity:0.8;
+}
+#gameplay #gamefieldMenu .menuItem {
+	background: rgba(0,0,0,0.8);
 }
 
 #gameplay #keyOverlay{
@@ -332,10 +335,8 @@ padding: 0 10px 0 10px;
 
 .circle{
 	border-radius: 1000px;
-	box-shadow:0 0 2px 0 black;
-	text-shadow:gray 1px 0 0,gray 0 1px 0,gray -1px 0 0,gray 0 -1px 0;
+	box-shadow:0 0 10px rgba(0,0,0,0.4);
 	position:absolute;
-	border-colors:black white;
 	color:white;
 	text-align:center;
 	font-family:Open Sans;
@@ -659,7 +660,7 @@ padding: 0 10px 0 10px;
 	border-width: 0;
 	border-radius: 2px;
 	text-align: center;
-	color:black;
+	color: white;
   box-shadow: 0 0 10px rgba(0,0,0,0.4);
 	outline: none;
 }
