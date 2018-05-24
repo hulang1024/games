@@ -7,11 +7,11 @@ function Options() {
 			this.poppedOut = !b;
 		}
 		if(this.poppedOut) {
-			$('#options').stop().animate({width:'0px'}, 300, 'easeOut', function(){
+			$('#options').stop().animate({left:'-380px'}, 300, 'easeOut', function(){
 				$(this).hide();
 			});
 		} else {
-			$('#options').stop().show().animate({width:'380px'}, 300, 'easeOut', function(){
+			$('#options').stop().show().animate({left:'0px'}, 300, 'easeOut', function(){
 				$(this).show();
 			});
 		}

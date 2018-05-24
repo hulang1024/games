@@ -129,8 +129,8 @@ select {
 #options {
 	position: absolute;
 	top: 0px;
-	left:0px;
-	width: 0;
+	left:-380px;
+	width: 380px;
 	height:100%;
 padding: 0 10px 0 10px;
 	overflow-x:hidden;
@@ -138,7 +138,6 @@ padding: 0 10px 0 10px;
     background: rgba(0,0,0,0.5);
     color: white;
 	white-space: nowrap;
-
 	display:none;
 	font-size:16px;
  box-shadow:1px 1px 10px rgba(0,0,0,1);
