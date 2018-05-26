@@ -23,7 +23,7 @@
 		$(document.body).append(div);
 
 		cursorEl = div.get(0);
-		cursorCrEl = childDiv.get(0);	
+		cursorCrEl = childDiv.get(0);
 	}
 
 	this.drawRotate = function (time) {
@@ -43,7 +43,7 @@
 	}
 
 	this.useAnimalCursor = function() {
-		overallCursorStyle = 'url("app/transparent.png"), default';
+		overallCursorStyle = 'url("resources/cursor/transparent.png"), default';
 		cursorEl.style.width = animalCursorR * 2 + 'px';
 		cursorEl.style.height = animalCursorR * 2 + 'px';
 		if(imageDataTable['cursormiddle']) {
@@ -84,9 +84,9 @@
 			cursorEl.style.backgroundPosition = '22px 22px';
 			cursorEl.style.backgroundSize = 32 + 'px ' + 32 + 'px';
 		}
-		overallCursorStyle = 'url("app/transparent.png"), default';
+		overallCursorStyle = 'url("resources/cursor/transparent.png"), default';
 		getElement('*').forEach(function(e){ e.style.cursor = overallCursorStyle; });
-		this.startCursorAnimal();	
+		this.startCursorAnimal();
 	}
 
 	this.pos = function(x, y) {
@@ -132,7 +132,7 @@
 		cursorCrEl.transform = '';
 		cursorCrEl.style.transform = cursorCrEl.transform;
 	}
-	
+
 	this.load = function() {
 		createCursor();
 
@@ -142,6 +142,6 @@
 		cursorEl.style.top = (windowHeight - animalCursorR * 2) / 2 + animalCursorR * 2 + 'px';
 		this.useAnimalCursor();
 	}
-	
+
 	this.load();
 }

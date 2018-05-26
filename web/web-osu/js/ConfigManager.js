@@ -3,14 +3,15 @@ var settings = {
 	skinName: 'Default',
 	enableAutoCursorSizing: true,
 	dimValue: 10,
+	useCustomColours: false,
 	keyoverlayEnabled: true,
 	mouseKeyInGameplayingDisabled: false,
 	keyBinds: {LeftClick: 90/*Z*/, RightClick: 88/*X*/},
 	limitFPS: 0,
 	volumes: {
-		master: 100,
-		music: 100,
-		effect: 50
+		master: 70,
+		music: 90,
+		effect: 40
 	}
 };
 

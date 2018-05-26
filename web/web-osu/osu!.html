@@ -1,22 +1,30 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<link rel="shortcut icon" href="app/favicon.ico">
-<title>osu!</title>
-<link rel="stylesheet" href="css/style.css" />
+	<meta charset="UTF-8">
+	<link rel="shortcut icon" href="resources/favicon.ico">
+	<title>osu!</title>
+	<link rel="stylesheet" href="css/style.css" />
+	<link rel="stylesheet" href="css/menu.css" />
+	<link rel="stylesheet" href="css/options.css" />
+	<link rel="stylesheet" href="css/solo.css" />
+	<link rel="stylesheet" href="css/modSelection.css" />
+	<link rel="stylesheet" href="css/gameplay.css" />
+	<link rel="stylesheet" href="css/grades.css" />
 </head>
 
 <body oncontextmenu="return false" onselectstart="return false" oncopy="return false">
 
 <div id="menu" class="screen" style="display:block">
-	<div id="playerNowplaying"></div>
-	<div id="musicPlayerBtns" style="display:none">
-		<button id="prev" title="上一首">◁</button>
-		<button id="play" title="播放">&nbsp;▶</button>
-		<button id="pause" title="暂停">‖</button>
-		<button id="stop" title="停止">■</button>
-		<button id="next" title="下一首">&nbsp;▷</button>
+	<div class="top">
+		<div id="playerNowplaying"></div>
+		<div id="musicPlayerBtns" style="display:none">
+			<!--<button id="prev" title="上一首"><<</button>-->
+			<!--<button id="play" title="播放">▶</button>-->
+			<button id="pause" title="暂停"></button>
+			<button id="stop" title="停止"></button>
+			<!--<button id="next" title="下一首">>></button>-->
+		</div>
 	</div>
 	<button id="playButton" style="display:none">游戏</button>
 	<button id="settingsButton" style="display:none">选项</button>
@@ -155,9 +163,9 @@
 </div>
 
 
-<div id="options">
+<div id="options" class="overlay">
 	<h1>设定</h1>
-	<p style="font-size:15px;text-align:center;color:#ca6579;">改变 osu! 的设置</p>
+	<p style="font-size:15px;text-align:center;color:#ff7cb7;">改变 osu! 的设置</p>
 
 	<h2>画面</h2>
 	<p class="h3">渲染器</p>
@@ -170,9 +178,12 @@
 
 	<h2>游戏</h2>
 	<p class="h3">常规</p>
-	<p><label for="enableKeyoverlay">
+	<p>
 		<input id="enableKeyoverlay" type="checkbox" checked="checked">
-			<span>显示按键表示框</span></label></p>
+		<label for="enableKeyoverlay">
+			<span>显示按键表示框</span>
+		</label>
+	</p>
 
 	<h2>音频</h2>
 	<p class="h3">音量</p>
@@ -185,9 +196,12 @@
 
 	<h2>输入</h2>
 	<p class="h3">鼠标</p>
-	<p><label for="disableMouseKeyInGameplaying">
+	<p>
 		<input id="disableMouseKeyInGameplaying" type="checkbox">
-			<span>在游戏中禁用鼠标按键</span></label></p>
+		<label for="disableMouseKeyInGameplaying">
+			<span>在游戏中禁用鼠标按键</span>
+		</label>
+	</p>
 	<p class="h3">键盘</p>
 	<p style="text-align:center;">
 		<button style="background-color:#0f83a4;" onclick="showKeySettings()">按键设置</button></p>
@@ -196,16 +210,28 @@
 	<p class="h3">皮肤</h3></p>
 	<p><span>当前皮肤：</span>
 		<select id="skins">
-		</select></p>
+		</select>
+	</p>
+
+	<p title="使用Comobo默认颜色">
+		<input id="useCustomColours" type="checkbox">
+		<label for="useCustomColours">
+			<span>使用Comobo默认颜色</span>
+		</label>
+	</p>
+
 	<p>
 		<span>背景暗化：</span>
 		<input id="dim" type="range" min="0" max="100" />
 	</p>
-	<p title="光标会根据选择谱面难度的CS(物件大小)进行调整"><label for="enableAutoCursorSizing">
+
+	<p title="光标会根据选择谱面难度的CS(物件大小)进行调整">
 		<input id="enableAutoCursorSizing" type="checkbox" checked="checked">
+		<label for="enableAutoCursorSizing">
 			<span>自动缩放光标</span>
-	</label></p>
-	<button name="back">返回</button>
+		</label>
+	</p>
+	<p>&nbsp;</p>
 </div>
 
 <div id="keySettings" class="screen" style="display:none;">

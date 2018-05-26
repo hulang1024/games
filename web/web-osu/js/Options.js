@@ -45,6 +45,7 @@ function Options() {
 		getElement('#options #disableBackground').checked = settings.bgDisabled;
 		getElement('#options #enableKeyoverlay').checked = settings.keyoverlayEnabled;
 		getElement('#options #disableMouseKeyInGameplaying').checked = settings.mouseKeyInGameplayingDisabled;
+		getElement('#options #useCustomColours').checked = settings.useCustomColours;
 
 	}
 
@@ -84,6 +85,10 @@ function Options() {
 	});
 	$('#options #enableAutoCursorSizing').change(function(){
 		settings.enableAutoCursorSizing = this.checked;
+		config.save();
+	});
+	$('#options #useCustomColours').change(function(){
+		settings.useCustomColours = this.checked;
 		config.save();
 	});
 

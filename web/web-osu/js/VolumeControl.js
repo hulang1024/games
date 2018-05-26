@@ -8,7 +8,7 @@
 	getElement('#effectVolume').value = settings.volumes.effect;
 
 	function controlVolumeValue(input, event, type) {
-		settings.volumes[type] = value;
+		settings.volumes[type] = input.value;
 		changeMusicAudioVolume();
 
 		config.save();

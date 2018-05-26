@@ -1,0 +1,105 @@
+
+#options {
+	position: absolute;
+	top: 0px;
+	left:-380px;
+	width: 380px;
+	height:100%;
+	padding: 0 10px 60px 10px;
+	overflow-x:hidden;
+	overflow-y:scroll;
+  background: rgba(0,0,0,0.5);
+  color: white;
+	white-space: nowrap;
+	display:none;
+	font-size:16px;
+ box-shadow:1px 1px 10px rgba(0,0,0,1);
+}
+
+#options h1{
+	font-size:20px;
+	font-weight:normal;
+	text-align:center;
+}
+#options h2{
+	font-size:22px;
+	font-weight:normal;
+	text-align:right;
+	color:#58d9fd;
+	margin:10px 0 2px 0;
+}
+#options .h3{
+	font-size:15px;
+	font-weight:bold;
+	color:white;
+}
+#options p{
+	line-height:28px;
+  padding: 1px 0 1px 0;
+	font-size:15px;
+	color:white;
+}
+#options button {
+    width: 90%;
+    height: 25px;
+	color:white;
+    border: none;
+	border-radius: 2px;
+	font-size:15px;
+	font-family: '微软雅黑';
+}
+#options input {
+  background-color: rgba(0,0,0,0.4);
+  border: none;
+  color: white;
+	width:295px;
+}
+#options input[type=checkbox] {
+	width:18px;
+	height:18px;
+  vertical-align: middle;
+}
+#options select {
+	background-color: rgba(0,0,0,0.4);
+	width:295px;
+	height:24px;
+	border:none;
+	color:white;
+}
+#options select option {
+	background-color: rgba(0,0,0,0.4);
+}
+#options option {
+	height:18px;
+}
+
+#keySettings button[name=back] {
+	position: absolute;
+	left: 0px;
+	bottom: 3px;
+	background-color:#ec3596;
+	border: none;
+	font-size:20px;
+	width: 80px;
+	height:40px;
+	border-radius:0px;
+	color:white;
+}
+
+#keySettings {
+	background-color:black;
+	color: white;
+}
+#keySettings table{
+	position: relative;
+	left: 40px;
+	margin: 0 auto;
+	border: none;
+}
+#keySettings #bingdingMsg {
+	position: relative;
+	top: 30px;
+	font-size: 20px;
+}
+#keySettings table .keyName { width: 450px; color: white; }
+#keySettings table .keyValue { width: 100px; color: yellow; text-align: center; }

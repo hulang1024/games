@@ -1,0 +1,149 @@
+
+#gameplay{
+	background-color:black;
+}
+
+#gameplay button{
+	width: 200px;
+	height: 50px;
+	margin: 10px;
+}
+#gamefield{
+	width:100%;
+	height:100%;
+	position: absolute;
+}
+
+#gameplay #scoring {
+	float:right;
+	position: absolute;
+	right: 10px;
+	top: 2px;
+	height: 40px;
+	line-height: 40px;
+	color: white;
+	font-size: 40px;
+}
+#gameplay .barprogress{
+	float:right;
+	position: absolute;
+	right: 10px;
+	top: 40px;
+	width:200px;
+	height:4px;
+}
+#gameplay>#accuracy{
+	float:right;
+	position: absolute;
+	right: 20px;
+	top: 40px;
+	height: 24px;
+	line-height: 24px;
+	color: white;
+	font-size: 24px;
+}
+#gameplay>#withMods>div{
+	float:right;
+	position:absolute;
+	top:110px;
+	background-size:cover;
+	z-index:99999;
+}
+#gameplay #gamefieldMenu{
+	z-index:100000000;
+	position:relative;
+	top: 40%;
+	width:400px;
+	margin: 0 auto;
+	font-size: 30px;
+	opacity:0.8;
+}
+#gameplay #gamefieldMenu .menuItem {
+	background: rgba(0,0,0,0.8);
+}
+
+#gameplay #keyOverlay{
+	position:fixed;
+	right: 0px;
+	top: 36%;
+	background-color:rgba(0,0,0,0.5);
+	width:42px;
+	height:171px;
+	border-radius: 5px 0px 0px 5px;
+}
+#gameplay #keyOverlay>div{
+	position: absolute;
+	width:36px;
+	height:40px;
+	background-color: white;
+	margin-left: 4px;
+	text-align: center;
+	line-height: 40px;
+	border-radius: 6px;
+	opacity: 1;
+	color:black;
+	font-size: 14px;
+	font-weight: bold;
+}
+#keyOverlay>div:nth-of-type(1){ top: 2px; }
+#keyOverlay>div:nth-of-type(2){ top: 44px; }
+#keyOverlay>div:nth-of-type(3){ top: 86px; }
+#keyOverlay>div:nth-of-type(4){ top: 128px; }
+
+.circle{
+	border-radius: 1000px;
+	box-shadow:0 0 10px rgba(0,0,0,0.4);
+	position:absolute;
+	color:white;
+	text-align:center;
+	font-family:Open Sans;
+	background-repeat: no-repeat;
+}
+.slider{
+	position:absolute;
+	border-radius: 1000px;
+	box-shadow:0 0 2px 0 black;
+}
+.approachcircle{
+	position:absolute;
+	border-radius: 1000px;
+	border-style:solid;
+	pointer-events:none;
+}
+.sliderfollowcircle{
+	position:absolute;
+	pointer-events:none;
+}
+.sliderball{
+	position:absolute;
+	background-size:contain;
+	background-repeat: no-repeat;
+	pointer-events:none;
+}
+.spinner{
+	position:absolute;
+	border-radius: 1000px;
+	background-size:contain;
+}
+.pointer {
+	position:absolute;
+	background-repeat: no-repeat;
+	pointer-events:none;
+}
+.hitScore{
+	position:absolute;
+	background-repeat:no-repeat;
+	pointer-events:none;
+}
+
+
+#skip{
+	position:fixed;
+	right:0px;
+	bottom:0px;
+	width: 300px;
+	height: 400px;
+	background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}

@@ -1,0 +1,67 @@
+
+#osuLogo {
+	position:absolute;
+	background-image: url('../resources/logo.png');
+	background-size:contain;
+	border-radius: 100%;
+	box-shadow: 0 0 50px rgba(0,0,0,0.1);
+}
+
+#menu { color: white;}
+#menu .top {
+	width: 100%;
+	height: 60px;
+	background: rgba(0,0,0,0.1);
+}
+#menu>button {
+	display:none;
+	position:absolute;
+	height: 70px;
+	width: 400px;
+    display: block;
+    font-size: 30px;
+	color:white;
+	border:none;
+    border-radius: 5px;
+	font-family: '微软雅黑';
+	background-color:#6a4fba;
+	box-shadow: 1px 3px 20px rgba(0,0,0,0.6);
+}
+#menu>button:hover {
+	width: 420px;
+}
+
+
+#playerNowplaying{
+	position:absolute;
+	top: 0px;
+	right: 10px;
+	float: right;
+	color: white;
+}
+#musicPlayerBtns{
+	position:absolute;
+	top: 22px;
+	right: 10px;
+	float: right;
+}
+#musicPlayerBtns>button{
+	width: 16px;
+	height: 16px;
+	text-align: center;
+	font-size:16px;
+	margin-left: 0px;
+	background: transparent;
+	border-width: 0;
+  border-color: #fff;
+	color: white;
+}
+
+#musicPlayerBtns #pause{
+  border-style: double;
+  border-width: 0px 0px 0px 16px;
+}
+#musicPlayerBtns #stop{
+  border-style: solid;
+  border-width: 0 0 0 16px;
+}

@@ -1,4 +1,4 @@
-﻿*{
+*{
 	margin: 0;
    -moz-user-select: -moz-none;
    -khtml-user-select: none;
@@ -20,10 +20,16 @@ button {
 }
 
 table {
+	border-collapse:collapse;
+	border-spacing: 0;
 	outline: none;
 }
 
 select {
+	outline: none;
+}
+
+input {
 	outline: none;
 }
 
@@ -36,17 +42,22 @@ select {
 }
 ::-webkit-scrollbar-thumb {/*滚动条里面小方块*/
     border-radius: 2px;
-    background-color: #cbcbcb;
-    background-image:
-        -webkit-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%,
-            transparent 25%,
-            transparent 50%, rgba(255, 255, 255, .2) 50%,
-            rgba(255, 255, 255, .2) 75%,
-            transparent 75%, transparent);
+    background-color: rgba(0,0,0,0.2);
 }
 ::-webkit-scrollbar-track {/*滚动条里面轨道*/
-    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
     background: transparent;
+}
+
+/* input[type=range] */
+input[type=range] {
+    -webkit-appearance: none;
+    height: 6px;
+    border-radius: 1px;
+		background-color: rgba(255,255,255,0.8);
+}
+input[type=range]::-webkit-slider-thumb {
+	border-radius: 2px;
+	background-color: rgba(255,255,255,0.9);
 }
 
 .screen{
@@ -59,6 +70,7 @@ select {
   background-position:center center;
 	background-repeat: no-repeat;
 }
+
 #loading {
    width: 32px;
    height: 32px;
@@ -66,591 +78,22 @@ select {
    color:white;
    text-align:center;
    line-height:32px;
-   background: url(../app/loading.gif) no-repeat;
+   background: url(../resources/loading.gif) no-repeat;
    position: absolute;
    display:none;
    background-size:contain;
 }
 
+.overlay {
+	z-index: 1000;
+}
+
 #osuLogo {
 	position:absolute;
-	background-image: url('../app/logo.png');
+	background-image: url('../resources/logo.png');
 	background-size:contain;
 	border-radius: 100%;
 	box-shadow: 0 0 50px rgba(0,0,0,0.1);
-}
-
-#menu { color: white;}
-#menu>button {
-	display:none;
-	position:absolute;
-	height: 70px;
-	width: 400px;
-    display: block;
-    font-size: 30px;
-	color:white;
-	border:none;
-    border-radius: 5px;
-	font-family: '微软雅黑';
-	background-color:#6a4fba;
-	box-shadow: 1px 1px 30px rgba(0,0,0,0.4);
-}
-#menu>button:hover {
-	width: 420px;
-}
-
-
-#playerNowplaying{
-	position:absolute;
-	top: 0px;
-	right: 10px;
-	float: right;
-	color: white;
-}
-#musicPlayerBtns{
-	position:absolute;
-	top: 30px;
-	right: 10px;
-	float: right;
-}
-#musicPlayerBtns>button{
-	width:32px;
-	height:32px;
-	text-align: center;
-	font-size:16px;
-	margin-left: 0px;
-	border-radius: 2px;
-	font-family: inherit;
-	background-color: black;
-	border-width: 0;
-	color: white;
-}
-
-#options {
-	position: absolute;
-	top: 0px;
-	left:-380px;
-	width: 380px;
-	height:100%;
-padding: 0 10px 0 10px;
-	overflow-x:hidden;
-	overflow-y:auto;
-    background: rgba(0,0,0,0.5);
-    color: white;
-	white-space: nowrap;
-	display:none;
-	font-size:16px;
- box-shadow:1px 1px 10px rgba(0,0,0,1);
-}
-#options h1{
-	font-size:20px;
-	font-weight:normal;
-	text-align:center;
-}
-#options h2{
-	font-size:22px;
-	font-weight:normal;
-	text-align:right;
-	color:#58d9fd;
-	margin-bottom:2px;
-}
-#options .h3{
-	font-size:15px;
-	font-weight:bold;
-	color:white;
-}
-#options p{
-	line-height:28px;
-	font-size:15px;
-	color:white;
-}
-#options button {
-    width: 90%;
-    height: 25px;
-	color:white;
-    border: none;
-	border-radius: 2px;
-	font-size:15px;
-	font-family: '微软雅黑';
-}
-#options input {
-  background-color: rgba(0,0,0,0.4);
-  border: none;
-  color: white;
-	width:295px;
-}
-
-#options select {
-	background-color: rgba(0,0,0,0.4);
-	width:295px;
-	height:24px;
-	border:none;
-	color:white;
-}
-#options select option {
-	background-color: rgba(0,0,0,0.4);
-}
-#options input[type=checkbox] {
-	width:18px;
-	height:18px
-}
-#options option {
-	height:18px;
-}
-#options button[name=back], #keySettings button[name=back] {
-	position: absolute;
-	left: 0px;
-	bottom: 3px;
-	background-color:#ec3596;
-	border: none;
-	font-size:20px;
-	width: 80px;
-	height:40px;
-	border-radius:0px;
-	color:white;
-}
-
-#keySettings {
-	background-color:black;
-	color: white;
-}
-#keySettings table{
-	position: relative;
-	left: 40px;
-	margin: 0 auto;
-	border: none;
-}
-#keySettings #bingdingMsg {
-	position: relative;
-	top: 30px;
-	font-size: 20px;
-}
-#keySettings table .keyName { width: 450px; color: white; }
-#keySettings table .keyValue { width: 100px; color: yellow; text-align: center; }
-
-
-#gameplay{
-	background-color:black;
-}
-
-#gameplay button{
-	width: 200px;
-	height: 50px;
-	margin: 10px;
-}
-#gamefield{
-	width:100%;
-	height:100%;
-	margin:0 auto;
-	position: absolute;
-}
-
-#gameplay #scoring {
-	float:right;
-	position: absolute;
-	right: 10px;
-	top: 2px;
-	height: 40px;
-	line-height: 40px;
-	color: white;
-	font-size: 40px;
-}
-#gameplay .barprogress{
-	float:right;
-	position: absolute;
-	right: 10px;
-	top: 40px;
-	width:200px;
-	height:4px;
-}
-#gameplay>#accuracy{
-	float:right;
-	position: absolute;
-	right: 20px;
-	top: 40px;
-	height: 24px;
-	line-height: 24px;
-	color: white;
-	font-size: 24px;
-}
-#gameplay>#withMods>div{
-	float:right;
-	position:absolute;
-	top:110px;
-	background-size:cover;
-	z-index:99999;
-}
-#gameplay #gamefieldMenu{
-	z-index:100000000;
-	position:relative;
-	top: 40%;
-	width:400px;
-	margin: 0 auto;
-	font-size: 30px;
-	opacity:0.8;
-}
-#gameplay #gamefieldMenu .menuItem {
-	background: rgba(0,0,0,0.8);
-}
-
-#gameplay #keyOverlay{
-	position:fixed;
-	right: 0px;
-	top: 36%;
-	background-color:rgba(0,0,0,0.5);
-	width:42px;
-	height:171px;
-	border-radius: 5px 0px 0px 5px;
-}
-#gameplay #keyOverlay>div{
-	position: absolute;
-	width:36px;
-	height:40px;
-	background-color: white;
-	margin-left: 4px;
-	text-align: center;
-	line-height: 40px;
-	border-radius: 6px;
-	opacity: 1;
-	color:black;
-	font-size: 14px;
-	font-weight: bold;
-}
-#keyOverlay>div:nth-of-type(1){ top: 2px; }
-#keyOverlay>div:nth-of-type(2){ top: 44px; }
-#keyOverlay>div:nth-of-type(3){ top: 86px; }
-#keyOverlay>div:nth-of-type(4){ top: 128px; }
-
-.mod {
-	width:68px;
-	height:66px;
-	float:left;
-	background-size:contain;
-}
-.mod>input{
-	display: none;
-}
-
-
-.circle{
-	border-radius: 1000px;
-	box-shadow:0 0 10px rgba(0,0,0,0.4);
-	position:absolute;
-	color:white;
-	text-align:center;
-	font-family:Open Sans;
-	background-repeat: no-repeat;
-}
-.slider{
-	position:absolute;
-	border-radius: 1000px;
-	box-shadow:0 0 2px 0 black;
-}
-.approachcircle{
-	position:absolute;
-	border-radius: 1000px;
-	border-style:solid;
-	pointer-events:none;
-}
-.sliderfollowcircle{
-	position:absolute;
-	pointer-events:none;
-}
-.sliderball{
-	position:absolute;
-	background-size:contain;
-	background-repeat: no-repeat;
-	pointer-events:none;
-}
-.spinner{
-	position:absolute;
-	border-radius: 1000px;
-	background-size:contain;
-}
-.pointer {
-	position:absolute;
-	background-repeat: no-repeat;
-	pointer-events:none;
-}
-.hitScore{
-	position:absolute;
-	background-repeat:no-repeat;
-	pointer-events:none;
-}
-
-#btnStart{
-	position:fixed;
-	bottom: -50px;
-	right: -30px;
-	width: 180px;
-	height: 180px;
-	background-image: url('../app/logo.png');
-	background-size:contain;
-}
-
-#skip{
-	position:fixed;
-	right:0px;
-	bottom:0px;
-	width: 300px;
-	height: 400px;
-	background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-
-
-#solo {
-}
-#rankingTypeSelect{
-	position: relative;
-	top: 16px;
-	width:240px;
-	background-color: transparent;
-	color: white;
-}
-#netContent{
-    display: block;
-    position: relative;
-    left: 250px;
-	line-height: 100%;
-}
-#songSelectListOp{
-	position:absolute;
-	top: 20px;
-	right: 10px;
-	float: left;
-}
-#songSelectListOp>span{
-	font-size: 28px;
-}
-#songSelectListOp>span:nth-of-type(1){ color:lightblue; }
-#songSelectListOp>span:nth-of-type(2){ color:lightgreen; }
-#songSelectListOp>select{
-	background-color:black;
-	color:white;
-}
-#songSelectListOp>select:nth-of-type(1){
-	border:1px solid lightblue;
-}
-#songSelectListOp>select:nth-of-type(2){
-	border:1px solid lightgreen;
-}
-
-#search{
-	z-index: 100;
-	position:absolute;
-	top: 70px;
-	right: 10px;
-	float: right;
-}
-#search span{
-	color: lightgreen;
-	font-weight: bold;
-}
-#search input{
-	background-color: transparent;
-	border: 1px solid transparent;
-	color: white;
-}
-
-#ranking {
-    position: relative;
-    left: 4px;
-    top: 2px;
-    float: left;
-    opacity: 0.5;
-}
-#ranking>select {
-    width: 100%;
-	height: 100%;
-	border:none;
-	background-color: transparent;
-}
-
-#ranking>select>option {
-    height: 40px;
-    width: 97%;
-    font-size: 16px;
-    color: white;
-    background-color: rgba(0,0,0,0.5);
-    margin-top: 1px;
-	background-repeat: no-repeat;
-    background-size: contain;
-    background-position-x: 30px;
-	border-radius: 1px;
-	border: none;
-    margin-bottom: 4px;
-    overflow: hidden;
-}
-#songSelectColl{
-	position: relative;
-	top:0px;
-	float:right;
-	width: 700px;
-}
-#songSelectColl>select {
-    width: 100%;
-	height: 100%;
-	border:none;
-	background-color: transparent;
-}
-#songSelectColl>select>option{
-	height:64px;
-	width: 100%;
-  margin-top: 3px;
-  padding: 6px 0 0 6px;
-	font-size: 20px;
-  color: white;
-	border-radius: 4px;
-	border: 1px solid rgba(0,0,0,0.2);
-	box-shadow: 0 0 2px rgba(0,0,0,0.6);
-  background: rgba(255,255,255,0.5)
-}
-
-#songDesc{
-	width:100%;
-	height: 150px;
-	background-color: rgba(0,0,0,0.7);
-}
-#songDesc>p{
-	color: white;
-	margin: 0;
-}
-#songDesc>[name=songName] {
-	width: 100%;
-	overflow: hidden;
-	white-space:nowrap;
-}
-#songDesc>p:nth-of-type(1){ font-size: 22px; }
-#songDesc>p:nth-of-type(2){ font-size: 16px; }
-#songDesc>p:nth-of-type(3){ font-size: 16px; font-weight: bold;}
-#songDesc>p:nth-of-type(4){ font-size: 16px; }
-#songDesc>p:nth-of-type(5){ font-size: 12px; }
-#selectedModNames{
-	position:fixed;
-	left: 140px;
-	bottom: 64px;
-	color: gray;
-	font-size: 36px;
-}
-#solo>[name=back]{
-	position:fixed;
-	bottom: 0px;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-
-
-#grades>[name=title]{
-	width:100%;
-	height:90px;
-	background-color:black;
-	opacity: 0.9;
-	color:white;
-	position:absolute;
-}
-#grades>[name=rankingTitle]{
-	height:100px;
-	position:absolute;
-	top:13px;
-	background-repeat: no-repeat;
-}
-#grades>[name=replayButton]{
-	height:60px;
-	position:absolute;
-	background-color:rgb(63, 125, 209)
-}
-#grades>[name=back]{
-	position:fixed;
-	bottom: 0px;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-#grades>[name=rankingPanel] {
-    background-repeat: no-repeat;
-    position: absolute;
-    top: 100px;
-	color: white;
-	padding: 16px;
-	font-size: 40px;
-}
-#grades>[name=ranking] {
-    background-repeat: no-repeat;
-    position: absolute;
-    top: 100px;
-}
-#grades>#withMods{
-	position:absolute;
-}
-#grades>#withMods>div{
-	float:right;
-	position:absolute;
-	background-size:cover;
-}
-#toolbox{
-	position:fixed;
-	bottom: -43px;
-	width: 100%;
-	height: 110px;
-	background-color: black;
-	color: #FFF0FF;
-	font-size: 16px;
-}
-#toolbox>#line{
-	position: absolute;
-	width:100%;
-	height:100%;
-	border-top: 2px solid blue;
-}
-#toolbox>#mods{
-	position: absolute;
-	left: 240px;
-	width: 54px;
-	height: 100%;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-#toolbox>#random{
-	position: absolute;
-	left: 298px;
-	width: 54px;
-	height: 100%;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-#modSelection {
-  background-color: rgba(0,0,0,0.3);
-	margin:0 auto;
-	width:100%;
-	height:100%;
-	color:white;
-	font-size:20px;
-}
-#modSelection table {
-	position:absolute;
-	top:120px;
-	left:20px;
-	margin-top: 20px;
-}
-#modSelection table td{
-	width:138px;
-	height:80px;
-}
-#modSelection table tr>td:nth-of-type(1){
-	width: 240px;
-	font-size: 26px;
-}
-#modSelection #modSelectionMenu{
-	position: relative;
-	top:400px;
-	width:600px;
-	margin:0 auto;
-}
-#modSelection #modSelectionMenu>button{
-	width:600px;
-	height:45px;
-	margin-top: 20px;
 }
 
 .menuItem {
@@ -663,6 +106,7 @@ padding: 0 10px 0 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.4);
 	outline: none;
 }
+
 .menuItem:hover {
   box-shadow: 0 0 10px rgba(255,255,255,0.5);
 }

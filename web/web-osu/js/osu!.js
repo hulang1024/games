@@ -1336,7 +1336,7 @@ function calc() {
 	circleRadius = calcCircleRadius(selectedBeatmap.difficulty.circleSize);
 	var comboColours = [];
 	var sliderBorder;
-	if(selectedBeatmap.fileFormatVersion <= 3) {
+	if(settings.useCustomColours || selectedBeatmap.fileFormatVersion <= 3) {
 		for(var i = 2; skinConfig.colours['combo'+i]; i++) {
 			comboColours.push(skinConfig.colours['combo'+i]);
 		}
@@ -1849,6 +1849,7 @@ function changeBackground() {
 		getElement('#gameplay').style.backgroundSize = backgroundSize;
 		getElement('#gameplay').style.backgroundImage = url;
 		getElement('#gameplay').style.backgroundRepeat = 'no-repeat';
+
 		getElement('#grades').style.backgroundSize = backgroundSize;
 		getElement('#grades').style.backgroundImage = url;
 		getElement('#grades').style.backgroundRepeat = 'no-repeat';
@@ -2840,7 +2841,7 @@ function loadGameBasicResources(callback) {
 		.concat(pngFilenames.map(function(filename){
 			return {contentType: 'image', filename: filename, filepath: useSkinBasePath + filename + '.png', cache: true}; }))
 		.concat(appPngFilenames.map(function(filename){
-			return {contentType: 'image', filename: "app/" + filename, filepath: "app/" + filename + '.png', cache: true}; }))
+			return {contentType: 'image', filename: "resources/" + filename, filepath: "resources/" + filename + '.png', cache: true}; }))
 		.concat(jpgFileanmes.map(function(filename){
 			return {contentType: 'image', filename: filename, filepath: useSkinBasePath + filename + '.jpg', cache: true}; }))
 		.concat(randomDefaultBgReqs),
