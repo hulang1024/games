@@ -2333,7 +2333,9 @@ function playEffectSound(hitObject, s) {
 				if(audio) {
 					audio.src = filepath;
 					audio.volume = nowVolume;
-					audio.play();
+          try {
+					    audio.play();
+          } catch(e) {}
 				}
 			}
 		}
@@ -2928,19 +2930,21 @@ function loadResources(requestList, allLoadedCallback) {
   var loadedCnt = 0;
   for(var i = 0; i < requestList.length; i++) {
     var req = requestList[i];
-	var c = req.cache ? '' : '?t=' + +new Date;
-    if(req.contentType == 'image') {
-      var image = new Image();
-	  bindLoadEvent(image, 'load');
-      image.src = req.filepath + c;
-      image.filepath = req.filepath;
-      image.filename = req.filename;
-    } else if(req.contentType == 'audio') {
-      var audio = new Audio();
-	  bindLoadEvent(audio, 'canplaythrough');
-      audio.src = req.filepath + c;
-      audio.filepath = req.filepath;
-    }
+	  var c = req.cache ? '' : '?t=' + +new Date;
+    try {
+      if(req.contentType == 'image') {
+        var image = new Image();
+  	  bindLoadEvent(image, 'load');
+        image.src = req.filepath + c;
+        image.filepath = req.filepath;
+        image.filename = req.filename;
+      } else if(req.contentType == 'audio') {
+        var audio = new Audio();
+  	  bindLoadEvent(audio, 'canplaythrough');
+        audio.src = req.filepath + c;
+        audio.filepath = req.filepath;
+      }
+    } catch(e) {}
   }
 
   function bindLoadEvent(resObj, eventName) {
