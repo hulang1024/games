@@ -35,6 +35,9 @@ function MainMenu() {
 		playUIEffectSound('menuclick');
 	});
 
+	parentE.mousemove(function() {
+		$('#menu .top').show();
+	});
 
 	/// osu logo
 	$('#osuLogo').mousedown(function(event){
@@ -51,6 +54,7 @@ function MainMenu() {
 				playButton.fadeOut();
 				settingsButton.fadeOut();
 				exitButton.fadeOut();
+				$('#menu .top').fadeOut();
 				menuLevel--;
 			}, 5000);
 		} else {
