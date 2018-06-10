@@ -511,6 +511,9 @@ $(function() {
       colorFiller.fill(colorSelector.getRgbIntArray(), cell.position, simage);
       board.setSImage(simage);
       historyRecorder.push(simage);
+    } else {
+      $(cell).css('background-color', colorSelector.getCode());
+      historyRecorder.push(board.getSImage());
     }
   });
 
@@ -695,4 +698,5 @@ $(function() {
   var simage = new SImage();
   simage.readFromText($('#ji_simage_data').text());
   board.setSImage(simage);
+  historyRecorder.push(board.getSImage());
 });
