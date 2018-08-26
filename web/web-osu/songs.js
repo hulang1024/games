@@ -3,7 +3,7 @@ window.songshome = '';
 window.skinshome = '';
 window.skins = ['Default', 'SameSkinButNoRingHitCirclesWeirdName'];
 //填写要导入的图谱的ID，以英文逗号分隔
-window.osujsons = 
+window.osujsons =
 [
 193,
 1161162,
@@ -16,7 +16,8 @@ window.osujsons =
 58064,
 35015,
 170583,
-469600
+469600,
+509204
 ];
 //osujson文件的根路径，并用英文引号括起来
 window.osujsons.path = 'osujsons/';
