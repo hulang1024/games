@@ -14,7 +14,6 @@ var
   gamefield,
   songSelect,rankingSelect,
   divKeyOverlayArray;
-var canvas, canvasContext;
 var windowWidth, windowHeight;
 var cursorR, animalCursorR;
 var gridW = 512, gridH = 384, gamefieldCenter = new Point(gridW / 2 * 1.2, gridH / 2 * 1.2);
@@ -119,7 +118,7 @@ var imageDataURLSet = [];
 //输入状态
 var nowKeyIsDown = false;
 
-var autoPlayer = new AutoPlayer();
+var autoPlayer;
 var inputKeyOverlayer = new InputKeyOverlayer();
 var replayer = new Replayer();
 
@@ -247,7 +246,14 @@ function AutoPlayer() {
 	var autoplayInputKeySeq = [], autoplayInputKeySeqIndex = 0;
 	var cursorPos, cursorPosInGrid;
 	var keyIsUping = false;
-
+  var mouseTrailLayerCanvas = getElement('#mouseTrailLayer');
+  mouseTrailLayerCanvas.width = gamefield.offsetWidth;
+  mouseTrailLayerCanvas.height = gamefield.offsetHeight;
+  mouseTrailLayerCanvas.ctx = mouseTrailLayerCanvas.getContext('2d');
+  mouseTrailLayerCanvas.ctx.fillStyle="#FFF";
+  mouseTrailLayerCanvas.ctx.globalAlpha=0.1;
+  var particles = [];
+  var particleTimeMax = 600;
 	this.init = function() {
 		moveHitObjectIndex = 0;
 		snDiffTime = null, sliderDiffTime = null;
@@ -319,9 +325,11 @@ function AutoPlayer() {
 				}
 				dx = (snDiffTime - diffTime) * (dx / snDiffTime);
 				dy = (snDiffTime - diffTime) * (dy / snDiffTime);
-				cursorPos = new Point(gamefieldCenterBaseX + (cursorPosInGrid.x + dx), gamefieldCenterBaseY + (cursorPosInGrid.y + dy));
+				cursorPos = new Point(Math.round(gamefieldCenterBaseX + (cursorPosInGrid.x + dx)), Math.round(gamefieldCenterBaseY + (cursorPosInGrid.y + dy)));
 				cursorEl.style.left = gamefieldCenterBaseX + (cursorPosInGrid.x + dx - cursorR + BorderWidth / 2) + 'px';
 				cursorEl.style.top = gamefieldCenterBaseY + (cursorPosInGrid.y + dy - cursorR + BorderWidth / 2) + 'px';
+        mouseTrailLayerCanvas.ctx.fillRect(cursorPos.x - 2, cursorPos.y - 2, 5, 5);
+        particles.push({x:cursorPos.x, y:cursorPos.y, time: particleTimeMax});
 			}
 		}
 		if(diffTime <= 1) {
@@ -384,10 +392,12 @@ function AutoPlayer() {
 			}
 			dx = diffTime * (dx / repeatOneTime);
 			dy = diffTime * (dy / repeatOneTime);
-			mousePos.x = gamefieldCenterBaseX + revPoint.x + dx;
-			mousePos.y = gamefieldCenterBaseY + revPoint.y + dy;
+			mousePos.x = Math.round(gamefieldCenterBaseX + revPoint.x + dx);
+			mousePos.y = Math.round(gamefieldCenterBaseY + revPoint.y + dy);
 			cursorEl.style.left = gamefieldCenterBaseX + (revPoint.x + dx - cursorR + BorderWidth / 2) + 'px';
 			cursorEl.style.top = gamefieldCenterBaseY + (revPoint.y + dy - cursorR + BorderWidth / 2) + 'px';
+      mouseTrailLayerCanvas.ctx.fillRect(mousePos.x - 2, mousePos.y - 2, 5, 5);
+      particles.push({x:mousePos.x, y:mousePos.y, time: particleTimeMax});
 		}
 		if(diffTime >= repeatOneTime) {
 			if(sliderRepeat == hitObject.repeat) {
@@ -446,6 +456,22 @@ function AutoPlayer() {
 		dy = (snDiffTime - diffTime) * (dy / snDiffTime);
 		cursorEl.style.top = gamefieldCenterBaseY + (cursorPosInGrid.y + dy - cursorR + BorderWidth / 2) + 'px';
 	};
+
+  this.update = function() {
+    updateParticles();
+  }
+  function updateParticles() {
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      p.time--;
+      if (p.time <= 0) {
+        mouseTrailLayerCanvas.ctx.clearRect(p.x - 2, p.y - 2, 5, 5);
+        //clears.push(i);
+        particles[i] = particles[particles.length - 1];
+        particles.length--;
+      }
+    }
+  }
 }
 
 /*
@@ -740,8 +766,6 @@ function init() {
 	divCombo = getElement('#gameplay #divCombo');
 	divScoring = getElement('#gameplay #scoring');
 	divAccuracy = getElement('#gameplay #accuracy');
-	canvas = getElement('canvas');
-	canvasContext = canvas.getContext('2d');
 
 
   //
@@ -1289,6 +1313,8 @@ function startAnimationFrame() {
 					}
 				}
 			}
+      autoPlayer.update();
+
 		}
 		if(skinConfig.general.cursorRotate)
 			cursor.drawRotate(new Date().getTime());
@@ -1982,6 +2008,7 @@ function start() {
 	inputKeyOverlayer.init();
 
 	if(withMods.autoplay || withMods.relax) {
+    autoPlayer = new AutoPlayer();
 		autoPlayer.init();
 	}
 
@@ -2390,7 +2417,7 @@ function draw(offsetTime) {
 					slider.style.transformOrigin = (circleRadius + BorderWidth) + 'px' + ' '
 						+ (circleRadius + BorderWidth) + 'px';
 					slider.style.transform = 'rotate(' + rotateDeg + 'deg)';
-					slider.style.opacity = 0.82;
+					slider.style.opacity = 1;
 					fragment.appendChild(slider);
 					hitObject.sliderElement = slider;
 
@@ -2600,10 +2627,10 @@ function draw(offsetTime) {
 				approachcircle.style.borderWidth = nowBorderWidth + 'px';
 				var nowAppRadius = circleRadius + BorderWidth / 2 + diffTime
 					* ((circleRadius * 3.5 - circleRadius - BorderWidth / 2) / approachRateMS);
-				approachcircle.style.width =  nowAppRadius * 2 + 'px';
-				approachcircle.style.height = nowAppRadius * 2 + 'px';
-				approachcircle.style.left = gamefieldCenterBaseX + (hitObject.position.x - nowAppRadius - nowBorderWidth / 2) + 'px';
-				approachcircle.style.top = gamefieldCenterBaseY + (hitObject.position.y - nowAppRadius - nowBorderWidth / 2) + 'px';
+				approachcircle.style.width =  Math.ceil(nowAppRadius * 2) + 'px';
+				approachcircle.style.height = Math.ceil(nowAppRadius * 2) + 'px';
+				approachcircle.style.left = Math.ceil(gamefieldCenterBaseX + (hitObject.position.x - nowAppRadius - nowBorderWidth / 2)) + 'px';
+				approachcircle.style.top = Math.ceil(gamefieldCenterBaseY + (hitObject.position.y - nowAppRadius- nowBorderWidth / 2)) + 'px';
 			}
 
 			if(diffTime <= 0) {

@@ -1,4 +1,4 @@
-﻿//在=后面填写你的Songs文件夹的根路径，并用英文引号括起来，''表示当前。路径分隔符请用'/'或者'\\'
+//在=后面填写你的Songs文件夹的根路径，并用英文引号括起来，''表示当前。路径分隔符请用'/'或者'\\'
 window.songshome = '';
 window.skinshome = '';
 window.skins = ['Default', 'SameSkinButNoRingHitCirclesWeirdName'];
@@ -17,7 +17,8 @@ window.osujsons =
 35015,
 170583,
 469600,
-509204
+509204,
+381500
 ];
 //osujson文件的根路径，并用英文引号括起来
 window.osujsons.path = 'osujsons/';
