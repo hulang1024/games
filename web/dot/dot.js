@@ -94,7 +94,7 @@ function Board(params) {
   var width = 600;
   var height = 600;
   var gridEnabled = true;
-  var DEFAULT_OUTLINE = '1px solid #dbdbdb';
+  var DEFAULT_BORDER = '1px solid #dbdbdb';
 
   var divBoard = $("#board");
   divBoard.css({
@@ -116,10 +116,10 @@ function Board(params) {
 
   this.enableGrid = function(enable) {
     gridEnabled = enable;
-    var outline = gridEnabled ? DEFAULT_OUTLINE: '';
+    var border = gridEnabled ? DEFAULT_BORDER: '';
     for (var r = 0; r < rowNum; r++)
       for (var c = 0; c < colNum; c++)
-        $(this.table.rows[r].cells[c]).css('outline', outline);
+        $(this.table.rows[r].cells[c]).css('border', border);
   }
 
   this.getSImage = function(data) {
@@ -163,7 +163,8 @@ function Board(params) {
     table.css({
       width: width + 'px',
       height: height + 'px',
-      border: '2px solid black'
+      border: '2px solid black',
+      borderCollapse: 'collapse'
     });
 
     var cellW = (width - (colNum-1)*2) / colNum;
@@ -189,7 +190,7 @@ function Board(params) {
           height: cellH + 'px',
           backgroundColor: '#FFFFFF',
           padding: 0,
-          outline: gridEnabled ? DEFAULT_OUTLINE: '',
+          border: gridEnabled ? DEFAULT_BORDER: '',
         });
         tr.append(td);
       }
@@ -252,10 +253,10 @@ function ColorSelector() {
         $('#selectedColorDisplay').css('background-color', '#' + selectedRgb);
       };
       td.onmouseover = function() {
-        $(this).css('outline', '1px solid #' + this.rgb);
+        $(this).css('border', '1px solid #' + this.rgb);
       };
       td.onmouseout = function() {
-        $(this).css('outline', '');
+        $(this).css('border', '');
       };
       $(td).css({
         width: (cellSize - 4) + 'px',
@@ -345,14 +346,14 @@ function Selector(board) {
 
     for (var y = 0; y < rect.height; y++)
       for (var x = 0; x < rect.width; x++)
-        $(board.table.rows[rect.y + y].cells[rect.x + x]).css('outline',
+        $(board.table.rows[rect.y + y].cells[rect.x + x]).css('border',
           b ? '1px dashed black' : '1px solid #dbdbdb');
   }
 
   function showVec(vec, b) {
     if (!vec)
       return;
-    $(board.table.rows[vec.y].cells[vec.x]).css('outline',
+    $(board.table.rows[vec.y].cells[vec.x]).css('border',
       b ? '1px dashed black' : '1px solid #dbdbdb');
   }
 }
