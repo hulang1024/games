@@ -262,8 +262,7 @@ function ColorSelector() {
         width: (cellSize - 4) + 'px',
         height: (cellSize - 4) + 'px',
         backgroundColor: '#' + td.rgb,
-        padding: 0,
-        outline: '1px solid #a0a0a0'
+        padding: 0
       });
 
       tr.appendChild(td);
@@ -347,14 +346,14 @@ function Selector(board) {
     for (var y = 0; y < rect.height; y++)
       for (var x = 0; x < rect.width; x++)
         $(board.table.rows[rect.y + y].cells[rect.x + x]).css('outline',
-          b ? '1px dashed black' : 'none');
+          b ? '1px dashed black' : '');
   }
 
   function showVec(vec, b) {
     if (!vec)
       return;
     $(board.table.rows[vec.y].cells[vec.x]).css('outline',
-      b ? '1px dashed black' : 'none');
+      b ? '1px dashed black' : '');
   }
 }
 
