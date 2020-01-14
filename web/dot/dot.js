@@ -253,17 +253,17 @@ function ColorSelector() {
         $('#selectedColorDisplay').css('background-color', '#' + selectedRgb);
       };
       td.onmouseover = function() {
-        $(this).css('border', '1px solid #' + this.rgb);
+        $(this).css('outline', '1px solid #' + this.rgb);
       };
       td.onmouseout = function() {
-        $(this).css('border', '');
+        $(this).css('outline', '');
       };
       $(td).css({
         width: (cellSize - 4) + 'px',
         height: (cellSize - 4) + 'px',
         backgroundColor: '#' + td.rgb,
         padding: 0,
-        border: '1px solid #a0a0a0'
+        outline: '1px solid #a0a0a0'
       });
 
       tr.appendChild(td);
