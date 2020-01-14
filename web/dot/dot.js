@@ -346,14 +346,14 @@ function Selector(board) {
 
     for (var y = 0; y < rect.height; y++)
       for (var x = 0; x < rect.width; x++)
-        $(board.table.rows[rect.y + y].cells[rect.x + x]).css('border',
+        $(board.table.rows[rect.y + y].cells[rect.x + x]).css('outline',
           b ? '1px dashed black' : '1px solid #dbdbdb');
   }
 
   function showVec(vec, b) {
     if (!vec)
       return;
-    $(board.table.rows[vec.y].cells[vec.x]).css('border',
+    $(board.table.rows[vec.y].cells[vec.x]).css('outline',
       b ? '1px dashed black' : '1px solid #dbdbdb');
   }
 }
