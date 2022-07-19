@@ -1,0 +1,345 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>maze</title>
+
+    <style>
+      .main {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: max-content;
+      }
+        .maze {
+          background-color: #000;
+          cursor: help;
+        }
+          .maze .cell {
+            width: var(--cell-size);
+            height: var(--cell-size);
+          }
+            .maze .cell:hover {
+              opacity: 0.9;
+            }
+            .maze .cell.wall {
+              background: #999;
+            }
+            .maze .cell.empty {
+              background: #fff;
+            }
+            .maze .cell.entry {
+              background: #00ff00;
+            }
+            .maze .cell.exit {
+              background: #ff0000;
+            }
+            .maze .cell.path {
+              background: #0000ff;
+            }
+            .maze .cell.path-head {
+              background: #f000f0;
+            }
+        .toolbar {
+          margin-top: 8px;
+          padding: 4px;
+          width: calc(100% - 8px);
+          display: flex;
+          align-items: center;
+          border: 1px solid #000;
+        }
+          .toolbar .item {
+            margin-right: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+            .toolbar .value {
+              margin: 0px 2px;
+              display: inline-block;
+              width: 60px;
+              background: #ccc;
+              text-align: center;
+            }
+            .toolbar .btn {
+              margin-right: 8px;
+            }
+    </style>
+  </head>
+
+  <body>
+    <div class="main">
+      <table class="maze" cellspacing='1'></table>
+      <div class="toolbar">
+        <div class="item">
+          <span>点击:</span>
+          <button onclick="onChangeEditCellTypeClick(-1)">&nbsp;<&nbsp;</button>
+          <span id="now-edit-cell-type" class="value"></span>
+          <button onclick="onChangeEditCellTypeClick(+1)">&nbsp;>&nbsp;</button>
+        </div>
+        <div class="item">
+          <span>速度:</span>
+          <button onclick="onChangeSpeedClick(-1)">&nbsp;<&nbsp;</button>
+          <span id="now-speed" class="value"></span>
+          <button onclick="onChangeSpeedClick(+1)">&nbsp;>&nbsp;</button>
+        </div>
+        <button class="btn" onclick="onGoClick()">Go！</button>
+        <button class="btn" onclick="onResetClick()">Reset！</button>
+      </div>
+    </div>
+
+    <script>
+      function Vector2(x, y) {
+        this.x = x;
+        this.y = y;
+        this.equals = function(that) {
+          return that.x == this.x && that.y == this.y;
+        }
+      }
+      Vector2.Up = new Vector2(0, -1);
+      Vector2.Right = new Vector2(1,  0);
+      Vector2.Down = new Vector2(0,  1);
+      Vector2.Left = new Vector2(-1, 0);
+
+      const CellType = {
+        Empty: 'empty',
+        Wall: 'wall',
+        Entry: 'entry',
+        Exit: 'exit',
+      };
+      
+      function drawMaze(maze, mazeEl) {
+        const cellSize = 18;
+        mazeEl.style.setProperty('--cell-size', `${cellSize}px`);
+        mazeEl.style.width = `${maze.cols * cellSize}px`;
+        mazeEl.style.height = `${maze.rows * cellSize}px`;
+        for (let r = 0; r < maze.rows; r++) {
+          const tr = document.createElement('tr');
+          for (let c = 0; c < maze.cols; c++) {
+            const cell = document.createElement('td');
+            cell.className = `cell ${maze.map[r][c]}`;
+            cell.dataset.row = r;
+            cell.dataset.col = c;
+            cell.onclick = onCellClick;
+            tr.appendChild(cell);
+          }
+          mazeEl.appendChild(tr);
+        }
+        return mazeEl;
+      }
+
+      function setCellClass(pos, cls) {
+        mazeEl.rows[pos.y].cells[pos.x].className = `cell ${cls}`;
+      }
+
+      function resetMaze(maze, mazeEl) {
+        for (let r = 0; r < maze.rows; r++) {
+          for (let c = 0; c < maze.cols; c++) {
+            setCellClass(new Vector2(c, r), maze.map[r][c]);
+          }
+        }
+      }
+
+      function readMaze() {
+        const maze = {
+          rows: 0,
+          cols: 0,
+          map: null,
+          entry: null,
+          exit: null
+        };
+        maze.rows = 30;
+        maze.cols = 30;
+        maze.map = new Array(maze.rows);
+        for (let r = 0; r < maze.rows; r++) {
+          maze.map[r] = new Array(maze.cols);
+        }
+        const data = `
+          #_#_#__#_#___#_#__#_#__#_#____
+          #___#_#__#_#_#__#_#_#__#_#__#_
+          #_#_____##__#____##__#___#__##
+          #_#_##___#_#__#___#_#__#____#_
+          #_#____#___#_#_##___#___#_#___
+          #_#_#__#___##_###___##_##___##
+          #_#__###__##__###__##__##_##__
+          #_#_#__#_#____###_#____##___##
+          #_#_#__#__####_#__#_###_#__#__
+          #_#_#_#__#__##_#__#__##___##_#
+          #_#_#_#__#___##_#__#__##_#_##_
+          #_#_##___#_____#__#_#__#____##
+          #_#____#_____#_##_____#_#_#___
+          #_#_#__#___#__###_#__#_##___#_
+          #_#_#_#__#__##_#_____##_#__#__
+          #_#_#_#_#__#_##_#__#__##_#_###
+          #_#_##___#_#___#__#_____#___#_
+          #A#____#_____#_##_____#_###___
+          #_#_#__#_#__#_###_#__#_##___#_
+          #_#__###__#___###_#__#_##_#___
+          #_#_##___#_#______#_____##_##_
+          #_#____#_____#_##_____#_#_#___
+          #_#_#__#_#__#_###_#__#_##___#_
+          #_#_#_#__#__##_#_____##____#__
+          #_#_#_#___#__##_#__#__#__#_###
+          #_#_##___#________#__#__#_#_#_
+          #_#____#_____#_##___#___#_#___
+          #_#_#__#_#__#_###_#__#_##___#_
+          #_#__###_#__#_###_#_#__##_#___
+          #_#_#__#_#__#_###_#__#______#B
+        `;
+        let readPos = 0;
+        for (let i = 0; i < data.length; i++) {
+          const r = Math.floor(readPos / maze.cols);
+          const c = readPos % maze.cols;
+          let type = CellType.Wall;
+          switch (data[i]) {
+          case '0':
+          case '_':
+            type = CellType.Empty;
+            break;
+          case '#':
+            type = CellType.Wall;
+            break;
+          case 'A':
+            type = CellType.Entry;
+            maze.entry = new Vector2(c, r);
+            break;
+          case 'B':
+            type = CellType.Exit;
+            maze.exit = new Vector2(c, r);
+            break;
+          default:
+            continue;
+          }
+          maze.map[r][c] = type;
+          readPos++;
+        }
+        console.log(maze);
+        return maze;
+      }
+
+      function canGo(posToGo, maze, visited) {
+        const { x, y } = posToGo;
+        if (!((0 <= y && y < maze.rows) && (0 <= x && x < maze.cols))) {
+          return 0;
+        }
+        if (maze.map[y][x] == CellType.Wall) {
+          return 0;
+        }
+        return !visited.some((p) => p.equals(posToGo));
+      }
+
+      function searchMaze(maze, pos, visited, path) {
+        if (maze.map[pos.y][pos.x] == CellType.Exit) {
+          return true;
+        }
+        visited.push(pos);
+
+        const scanDirs = [ Vector2.Right, Vector2.Down, Vector2.Up, Vector2.Left ];
+        for (let d = 0; d < 4; d++) {
+          const scanPos = new Vector2(pos.x + scanDirs[d].x, pos.y + scanDirs[d].y);
+          if (canGo(scanPos, maze, visited)) {
+            if (maze.map[scanPos.y][scanPos.x] == CellType.Exit) {
+              return true;
+            } else if (searchMaze(maze, scanPos, visited, path)) {
+              path.push(scanPos);
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+
+      const maze = readMaze();
+      const mazeEl = document.querySelector('.maze');
+      drawMaze(maze, mazeEl);
+      let isRunning = false;
+      let timer;
+      let editState = {
+        cellTypeIndex: 0,
+        speed: 7,
+      };
+
+      onChangeEditCellTypeClick(0);
+      onChangeSpeedClick(0);
+
+      function onCellClick() {
+        if (isRunning) {
+          return;
+        }
+        const editPos = new Vector2(+this.dataset.col, +this.dataset.row);
+        let newCellType = [CellType.Exit, CellType.Entry, CellType.Wall][editState.cellTypeIndex];
+        switch (newCellType) {
+          case CellType.Exit:
+            maze.map[maze.exit.y][maze.exit.x] = CellType.Empty;
+            setCellClass(maze.exit, CellType.Empty);
+            maze.exit = editPos;
+            break;
+          case CellType.Entry:
+            maze.map[maze.entry.y][maze.entry.x] = CellType.Empty;
+            setCellClass(maze.entry, CellType.Empty);
+            maze.entry = editPos;
+            break;
+          case CellType.Wall:
+            newCellType = maze.map[editPos.y][editPos.x] == CellType.Empty ? CellType.Wall : CellType.Empty;
+            break;
+        }
+        maze.map[editPos.y][editPos.x] = newCellType;
+        setCellClass(editPos, newCellType);
+      }
+
+      function onChangeEditCellTypeClick(v) {
+        editState.cellTypeIndex = (editState.cellTypeIndex + v) % 3;
+        document.querySelector('#now-edit-cell-type').innerText = ['终点', '起点', '障碍'][editState.cellTypeIndex];
+      }
+
+      function onChangeSpeedClick(v) {
+        editState.speed = Math.min(Math.max(editState.speed + v, 1), 10);
+        document.querySelector('#now-speed').innerText = editState.speed * 10 + '%';
+      }
+
+      function onGoClick() {
+        function runPathAnimation(path) {
+          isRunning = true;
+          let lastPos = null;
+          timer = setInterval(() => {
+            if (path.length > 0 && lastPos) {
+              setCellClass(lastPos, 'path');
+            }
+            lastPos = path.pop();
+            if (!lastPos) {
+              clearInterval(timer);
+              isRunning = false;
+              setTimeout(() => {
+                alert("已到达终点！");
+              }, 100);
+              return;
+            }
+            setCellClass(lastPos, 'path-head');
+          }, (10 - editState.speed) * 15 + 1);
+        }
+
+        if (isRunning) {
+          return;
+        }
+        const path = [];
+        searchMaze(maze, maze.entry, [], path);
+        console.log(path);
+        if (path.length == 0) {
+          alert("不能到达终点！");
+        } else {
+          runPathAnimation(path);
+        }
+      }
+
+      function onResetClick() {
+        clearInterval(timer);
+        isRunning = false;
+        resetMaze(maze, mazeEl);
+      }
+    </script>
+  </body>
+</html>
