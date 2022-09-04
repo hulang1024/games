@@ -107,6 +107,10 @@
           return new Vector2(this.x + v.x, this.y + v.y);
         }
 
+        this.clone = function() {
+          return new Vector2(this.x, this.y);
+        }
+
         this.toString = function() {
           return '(' + this.x + ', ' + this.y + ')';
         }
@@ -115,6 +119,168 @@
       Vector2.Right = new Vector2(1,  0);
       Vector2.Down = new Vector2(0,  1);
       Vector2.Left = new Vector2(-1, 0);
+      const DIR_VECTORS = [ Vector2.Up, Vector2.Right, Vector2.Down, Vector2.Left ];
+      
+      class AIState {
+        startDir = null;
+        nowDir = null;
+        startPos = null;
+        newPos = null;
+        returnPC = 0
+      }
+
+      class AI {
+        constructor(maze) {
+          this.maze = maze;
+          this.reset();
+        }
+
+        update() {
+          this.speedTimer++;
+          if (this.speedTimer >= Math.floor((1 - editState.speed / 10) * 60)) {
+            this.speedTimer = 0;
+          } else {
+            return;
+          }
+
+          while (this.path.length == 0
+            && !this.nowState.startPos.equals(this.maze.exit)) {
+            const { nowState } = this;
+            switch (this.pc) {
+              case 0:
+                if (nowState.startPos.equals(this.maze.exit)) {
+                  this.ret(true);
+                  this.jump(4);
+                } else {
+                  this.visited.push(nowState.startPos);
+                  nowState.startDir = this.lookAround(nowState.startPos);
+                  nowState.nowDir = nowState.startDir;
+                }
+                break;
+              case 1:
+                console.log(nowState.startPos);
+                nowState.newPos = nowState.startPos.plus(DIR_VECTORS[nowState.nowDir]);
+                if (this.canGo(nowState.newPos)) {
+                  console.log('forward', nowState.newPos.toString());
+                  this.path.push({ val: nowState.newPos, type: 'forward' });
+                  this.isForward = true;
+                  const state = new AIState();
+                  state.startPos = nowState.newPos;
+                  this.call(state);
+                } else {
+                  this.jump(3);
+                }
+                break;
+              case 2:
+                if (this.lastFound) {
+                  this.ret(true);
+                } else {
+                  console.log('restore', nowState.newPos.toString());
+                  this.path.push({ val: nowState.newPos, type: 'restore' });
+                  this.isForward = false;
+                }
+                break;
+              case 3:
+                nowState.nowDir = ++nowState.nowDir % 4;
+                if (nowState.nowDir != nowState.startDir) {
+                  this.jump(1);
+                } else {
+                  //console.log('ret');
+                  this.ret(false);
+                }
+                break;
+              case 4:
+                console.log('已到达终点！');
+                break;
+            }
+            
+            if (!this.nowState) {
+              this.visited = [];
+              this.nowState = new AIState();
+              this.nowState.startPos = this.lastPos;
+              this.call(nowState);
+            }
+            this.pc++;
+          }
+        }
+
+        draw() {
+          if (this.path.length == 0) {
+            return;
+          }
+          if (this.lastPos) {
+            setCellClass(this.lastPos.val, 'path-' + this.lastPos.type);
+          }
+          this.lastPos = this.path.shift();
+          setCellClass(this.lastPos.val, 'path-head');
+        }
+
+        reset() {
+          this.visited = [];
+          this.lastPos = null;
+          this.isForward = true;
+          this.speedTimer = 0;
+          this.path = [];
+
+          this.memory = [];
+          this.lastFound = false;
+          this.pc = -1;
+          this.memory = [];
+          this.nowState = new AIState();
+          this.nowState.startPos = maze.entry.clone();
+          this.call(this.nowState);
+        }
+
+        lookAround(startPos) {
+          for (let dir = 0; dir < 4; dir++) {
+            let newPos = startPos;
+            while (true) {
+              newPos = newPos.plus(DIR_VECTORS[dir]);
+              // 如果前方可以走
+              if (this.canGo(newPos)) {
+                // 已看到了出口，优先出口方向
+                if (newPos.equals(this.maze.exit)) {
+                  return dir;
+                }
+              } else {
+                break;
+              }
+            }
+          }
+          return Math.floor(Math.random() * 4);
+        }
+
+        // 测试是否能走，比如前方是边界，或墙
+        canGo(posToGo) {
+          const { x, y } = posToGo;
+          if (!((0 <= y && y < this.maze.rows) &&
+                (0 <= x && x < this.maze.cols))) {
+            return 0;
+          }
+          if (this.maze.map[y][x] == CellType.Wall) {
+            return 0;
+          }
+          return !this.visited.some((p) => p.equals(posToGo));
+        }
+
+        call(state) {
+          state.returnPC = this.pc;
+          this.memory.push(state);
+          this.nowState = state;
+          this.pc = -1;
+        }
+
+        ret(val) {
+          this.lastFound = val;
+          this.pc = this.nowState.returnPC;
+          this.memory.pop();
+          this.nowState = this.memory[this.memory.length - 1];
+        }
+
+        jump(pc) {
+          this.pc = pc - 1;
+        }
+      }
 
       const CellType = {
         Empty: 'empty',
@@ -233,63 +399,6 @@
         return maze;
       }
 
-      // 测试是否能走，比如前方是边界，或墙
-      function canGo(posToGo, maze, visited) {
-        const { x, y } = posToGo;
-        if (!((0 <= y && y < maze.rows) && (0 <= x && x < maze.cols))) {
-          return 0;
-        }
-        if (maze.map[y][x] == CellType.Wall) {
-          return 0;
-        }
-        return !visited.some((p) => p.equals(posToGo));
-      }
-
-      const DIRS = [ Vector2.Up, Vector2.Right, Vector2.Down, Vector2.Left ];
-
-      function lookAround(maze, startPos, visited) {
-        for (let d = 0; d < 4; d++) {
-          const dir = DIRS[d];
-          let newPos = startPos;
-          while (true) {
-            newPos = newPos.plus(dir);
-            // 如果前方可以走
-            if (canGo(newPos, maze, visited)) {
-              // 已看到了出口，优先出口方向
-              if (newPos.equals(maze.exit)) {
-                return [dir].concat(DIRS.filter((d) => d != dir));
-              }
-            } else {
-              break;
-            }
-          }
-        }
-        return DIRS;
-      }
-
-      function searchMaze(maze, startPos, visited, path) {
-        if (maze.map[startPos.y][startPos.x] == CellType.Exit) {
-          return true;
-        }
-        visited.push(startPos);
-
-        const sortedDirs = lookAround(maze, startPos, visited);
-
-        for (let d = 0; d < 4; d++) {
-          const newPos = startPos.plus(sortedDirs[d]);
-          if (canGo(newPos, maze, visited)) {
-            path.push({ val: newPos, type: 'forward' });
-            console.log('newPos', newPos);
-            if (searchMaze(maze, newPos, visited, path)) {
-              return true;
-            } else  {
-              path.push({ val: newPos, type: 'restore' });
-            }
-          }
-        }
-        return false;
-      }
-
       const maze = readMaze();
       const mazeEl = document.querySelector('.maze');
       drawMaze(maze, mazeEl);
@@ -299,14 +408,21 @@
         cellTypeIndex: 0,
         speed: 9,
       };
+      const ai = new AI(maze);
 
       onChangeEditCellTypeClick(0);
       onChangeSpeedClick(0);
 
-      function onCellClick() {
+
+      let speedTimer = 0;
+      const animate = () => {
         if (isRunning) {
-          return;
+          ai.draw();
+          ai.update();
         }
+        animation = requestAnimationFrame(animate);
+      };
+      function onCellClick() {
         const editPos = new Vector2(+this.dataset.col, +this.dataset.row);
         let newCellType = [CellType.Exit, CellType.Entry, CellType.Wall][editState.cellTypeIndex];
         switch (newCellType) {
@@ -340,58 +456,9 @@
 
       function onGoClick() {
         isRunning = true;
-        if (animation) {
-          return;
-        }
-
-        const path = [];
-        const found = searchMaze(maze, maze.entry, [], path);
-        if (path.length == 0) {
-          alert("不能到达终点！");
-        } else {
-          resetMaze(maze, mazeEl);
-          runPathAnimation(path, found);
-        }
-
-        function runPathAnimation(path, found) {
-          isRunning = true;
-          let lastPos = null;
-          let speedTimer = 0;
-          const animate = () => {
-            if (!isRunning) {
-              animation = requestAnimationFrame(animate);
-              return;
-            }
-            speedTimer++;
-            if (speedTimer >= Math.floor((1 - editState.speed / 10) * 60)) {
-              speedTimer = 0;
-            } else {
-              animation = requestAnimationFrame(animate);
-              return;
-            }
-
-            if (path.length > 0 && lastPos) {
-              setCellClass(lastPos.val, 'path-' + lastPos.type);
-            }
-            lastPos = path.shift();
-            console.log(JSON.stringify(lastPos));
-            if (!lastPos) {
-              cancelAnimationFrame(animation);
-              isRunning = false;
-              animation = null;
-              setTimeout(() => {
-                if (found) {
-                  alert("已到达终点！");
-                } else {
-                  alert("不能到达终点！");
-                }
-              }, 100);
-              return;
-            }
-            setCellClass(lastPos.val, 'path-head');
-            animation = requestAnimationFrame(animate);
-          };
+        if (!animation) {
           animation = requestAnimationFrame(animate);
+          return;
         }
       }
 
@@ -404,7 +471,9 @@
         cancelAnimationFrame(animation);
         animation = null;
         resetMaze(maze, mazeEl);
+        ai.reset();
       }
+
     </script>
   </body>
 </html>
